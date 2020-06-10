@@ -7,7 +7,7 @@ export class TelegramClient {
   constructor(private readonly _token: string) {
   }
 
-  private readonly _apiBaseUrl = Constants.Api.BaseUrl;
+  private readonly _apiBaseUrl: string = Constants.Api.BaseUrl;
 
   public async method<T>(
     method: string,

@@ -13,7 +13,7 @@ import { Logger } from "./deps.ts";
 export class Bot {
   private _polling?: boolean;
 
-  private _offset: number = Constants.Default.Offset;
+  private _offset: number = Constants.DefaultOptions.Offset;
   private readonly _allowedUpdates: string[] = [];
 
   private readonly _client = new TelegramClient(this._token);
@@ -49,10 +49,10 @@ export class Bot {
     }
   }
 
-  /** Define controller for command */
-  public command(command: string, controller: Handler): void {
+  /** Define handler for command */
+  public command(command: string, handler: Handler): void {
     if (!this._find(command)) {
-      this._commands.push({ command, handler: controller });
+      this._commands.push({ command, handler });
     } else {
       throw new BotError("Command already exists");
     }

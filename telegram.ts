@@ -18,8 +18,8 @@ export class Telegram {
     offset: number,
     allowedUpdates?: string[],
   ): Promise<Update[]> {
-    const _limit: number = Constants.Default.Limit;
-    const _timeout: number = Constants.Default.Timeout;
+    const _limit: number = Constants.DefaultOptions.Limit;
+    const _timeout: number = Constants.DefaultOptions.Timeout;
     const _allowedUpdates = allowedUpdates || [];
 
     const _url =
