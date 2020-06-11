@@ -1,7 +1,13 @@
 // Copyright 2020 the denogram authors. All rights reserved. MIT license.
 import { TelegramClient } from "./client.ts";
 import { Update, User, Message } from "./_types/mod.ts";
-import { Constants } from "./_util/mod.ts";
+
+export interface GetUpdatesOptions {
+  offset: number;
+  limit: number;
+  timeout: number;
+  allowedUpdates: string[];
+}
 
 export interface SendMessageOptions {
   chatId: number;
@@ -14,19 +20,12 @@ export class Telegram {
   constructor(public readonly client: TelegramClient) {
   }
 
-  public getUpdates(
-    offset: number,
-    allowedUpdates?: string[],
-  ): Promise<Update[]> {
-    const _limit: number = Constants.DefaultOptions.Limit;
-    const _timeout: number = Constants.DefaultOptions.Timeout;
-    const _allowedUpdates = allowedUpdates || [];
-
+  public getUpdates(options: GetUpdatesOptions): Promise<Update[]> {
     const _url =
-      `getUpdates?offset=${offset}&limit=${_limit}&timeout=${_timeout}`;
+      `getUpdates?offset=${options.offset}&limit=${options.limit}&timeout=${options.timeout}`;
 
     return this.client.method<Update[]>(_url, {
-      allowed_updates: _allowedUpdates,
+      allowed_updates: options.allowedUpdates,
     });
   }
 

@@ -1,5 +1,5 @@
 // Copyright 2020 the denogram authors. All rights reserved. MIT license.
-/** Telegram Error */
+/** Telegram error */
 export class TelegramError extends Error {
   name = "TelegramError";
 
@@ -8,7 +8,7 @@ export class TelegramError extends Error {
   }
 }
 
-/** Bot Error */
+/** Bot error */
 export class BotError extends Error {
   name = "BotError";
 
