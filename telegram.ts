@@ -21,12 +21,14 @@ export class Telegram {
   }
 
   public getUpdates(options: GetUpdatesOptions): Promise<Update[]> {
-    const _url =
-      `getUpdates?offset=${options.offset}&limit=${options.limit}&timeout=${options.timeout}`;
+    const { offset, limit, timeout, allowedUpdates } = options;
 
-    return this.client.method<Update[]>(_url, {
-      allowed_updates: options.allowedUpdates,
-    });
+    return this.client.method<Update[]>(
+      `getUpdates?offset=${offset}&limit=${limit}&timeout=${timeout}`,
+      {
+        allowed_updates: allowedUpdates,
+      },
+    );
   }
 
   public getMe(): Promise<User> {

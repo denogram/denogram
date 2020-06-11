@@ -8,7 +8,6 @@ import { Telegram, GetUpdatesOptions } from "./telegram.ts";
 import { Update } from "./_types/mod.ts";
 import { Constants, logger } from "./_util/mod.ts";
 import { Logger } from "./deps.ts";
-import { DefaultOptions } from "./_util/constants/mod.ts";
 
 export interface PollingOptions extends GetUpdatesOptions {
   started: boolean;
@@ -125,8 +124,8 @@ export class Bot {
 
   /** Start polling */
   private async _startPolling(
-    limit: number = DefaultOptions.Limit,
-    timeout: number = DefaultOptions.Timeout,
+    limit: number = Constants.DefaultOptions.Limit,
+    timeout: number = Constants.DefaultOptions.Timeout,
     allowedUpdates: string[] = [],
   ): Promise<void> {
     this._polling.limit = limit;
@@ -141,18 +140,18 @@ export class Bot {
 
   /** Launch bot */
   public async launch(): Promise<void> {
-    const { username } = await this._telegram.getMe();
+    const _botInfo = await this._telegram.getMe();
 
-    this._logger.info(`Launching ${username}`);
+    this._logger.info(`Launching ${_botInfo.username}`);
 
     await this._startPolling();
   }
 
   /** Stop bot */
   public async stop(): Promise<void> {
-    const { username } = await this._telegram.getMe();
+    const _botInfo = await this._telegram.getMe();
 
-    this._logger.info(`Stopping ${username}`);
+    this._logger.info(`Stopping ${_botInfo.username}`);
 
     this._polling.started = false;
   }
