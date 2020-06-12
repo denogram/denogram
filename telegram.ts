@@ -1,11 +1,14 @@
 // Copyright 2020 the denogram authors. All rights reserved. MIT license.
 import { TelegramClient } from "./client.ts";
-import { Update, User, Message } from "./_types/mod.ts";
+import { Update, User, Chat, Message } from "./_types/mod.ts";
 import { GetUpdatesParams, SendMessageParams } from "./_types/params/mod.ts";
 
 /** Telegram */
 export class Telegram {
-  constructor(public readonly client: TelegramClient) {
+  public client: TelegramClient;
+
+  constructor(public readonly _token: string) {
+    this.client = new TelegramClient(_token);
   }
 
   /**
@@ -44,6 +47,10 @@ export class Telegram {
       chat_id: chatId,
       ...params,
     });
+  }
+
+  public getChat(chatId: number): Promise<Chat> {
+    return this.client.method<Chat>(`getChat?chat_id=${chatId}`);
   }
 
   public deleteMessage(

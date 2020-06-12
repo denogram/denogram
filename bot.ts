@@ -1,9 +1,6 @@
 // Copyright 2020 the denogram authors. All rights reserved. MIT license.
-import { TelegramClient } from "./client.ts";
-import { Command } from "./command.ts";
 import { Context } from "./context.ts";
 import { BotError } from "./error.ts";
-import { Handler } from "./handler.ts";
 import { Telegram } from "./telegram.ts";
 import { Update } from "./_types/mod.ts";
 import { GetUpdatesParams } from "./_types/params/mod.ts";
@@ -16,6 +13,14 @@ export type PollingConfig = GetUpdatesParams & {
 
 export type PollingOptions = Omit<GetUpdatesParams, "offset" | "limit">;
 
+export type Handler = (ctx: Context) => void;
+
+// TODO(stanislavstrelnikov): replace with middleware
+interface Command {
+  readonly command: string;
+  readonly handler: Handler;
+}
+
 /** Telegram bot */
 export class Bot {
   private _polling: PollingConfig = {
@@ -26,8 +31,7 @@ export class Bot {
     started: false,
   };
 
-  private readonly _client: TelegramClient = new TelegramClient(this._token);
-  private readonly _telegram: Telegram = new Telegram(this._client);
+  private readonly _telegram: Telegram = new Telegram(this._token);
   private _context?: Context;
 
   private _logger: Logger = logger;

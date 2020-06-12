@@ -14,11 +14,11 @@ jobs:
         with:
           deno-version: v1.1.0
 
-      - name: check is formatted
+      - name: fmt
         run: deno fmt --check
 
       - name: lint
         run: deno lint --unstable
 
-#      - name: test
-#        run: deno test --allow-read --allow-write
+      - name: test
+        run: deno test --allow-read --allow-write
