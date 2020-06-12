@@ -10,7 +10,7 @@ jobs:
       - name: clone repository
         uses: actions/checkout@v2
       - name: install deno
-        uses: denolib/setup-deno
+        uses: denolib/setup-deno@master
         with:
           deno-version: v1.1.0
 
