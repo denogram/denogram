@@ -1,5 +1,8 @@
 // Copyright 2020 the denogram authors. All rights reserved. MIT license.
-/** Chat permissions */
+/**
+ * Chat permissions.
+ * Ref: https://core.telegram.org/bots/api#chatpermissions
+ */
 export interface ChatPermissions {
   can_send_messages?: boolean;
   can_send_media_messages?: boolean;
