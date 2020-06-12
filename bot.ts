@@ -4,21 +4,24 @@ import { Command } from "./command.ts";
 import { Context } from "./context.ts";
 import { BotError } from "./error.ts";
 import { Handler } from "./handler.ts";
-import { Telegram, GetUpdatesOptions } from "./telegram.ts";
+import { Telegram } from "./telegram.ts";
 import { Update } from "./_types/mod.ts";
-import { Constants, logger } from "./_util/mod.ts";
+import { GetUpdatesParams } from "./_types/params/mod.ts";
+import { logger } from "./_util/mod.ts";
 import { Logger } from "./deps.ts";
 
-export interface PollingOptions extends GetUpdatesOptions {
+export type PollingConfig = GetUpdatesParams & {
   started: boolean;
-}
+};
+
+export type PollingOptions = Omit<GetUpdatesParams, "offset" | "limit">;
 
 /** Telegram bot */
 export class Bot {
-  private _polling: PollingOptions = {
-    offset: Constants.DefaultOptions.Offset,
-    limit: Constants.DefaultOptions.Limit,
-    timeout: Constants.DefaultOptions.Timeout,
+  private _polling: PollingConfig = {
+    offset: 0,
+    limit: 100,
+    timeout: 30,
     allowedUpdates: [],
     started: false,
   };
@@ -39,25 +42,25 @@ export class Bot {
     return this._commands.find((el) => el.command === command);
   }
 
-  /** Define handler for start command */
+  /** Set handler for start command */
   public start(handler: Handler): void {
-    if (!this._findCommand(Constants.Command.Start)) {
-      this._commands.push({ command: Constants.Command.Start, handler });
+    if (!this._findCommand("start")) {
+      this._commands.push({ command: "start", handler });
     } else {
       throw new BotError("Handler for start command already exists");
     }
   }
 
-  /** Define handler for help command */
+  /** Set handler for help command */
   public help(handler: Handler): void {
-    if (!this._findCommand(Constants.Command.Help)) {
-      this._commands.push({ command: Constants.Command.Help, handler });
+    if (!this._findCommand("help")) {
+      this._commands.push({ command: "help", handler });
     } else {
       throw new BotError("Handler for help command already exists");
     }
   }
 
-  /** Define handler for command */
+  /** Set handler for command */
   public command(command: string, handler: Handler): void {
     if (!this._findCommand(command)) {
       this._commands.push({ command, handler });
@@ -89,7 +92,7 @@ export class Bot {
       if (
         _text.length > 1 &&
         _text.length < 33 &&
-        _text.startsWith(Constants.Command.Prefix)
+        _text.startsWith("/")
       ) {
         const command = _text.substr(1);
         this._handleCommand(command);
@@ -104,8 +107,7 @@ export class Bot {
 
   /** Fetch updates */
   private async _fetchUpdates(): Promise<void> {
-    const _updates = await this._telegram.getUpdates({
-      offset: this._polling.offset,
+    const _updates = await this._telegram.getUpdates(this._polling.offset, {
       limit: this._polling.limit,
       timeout: this._polling.timeout,
       allowedUpdates: this._polling.allowedUpdates,
@@ -124,13 +126,15 @@ export class Bot {
 
   /** Start polling */
   private async _startPolling(
-    limit: number = Constants.DefaultOptions.Limit,
-    timeout: number = Constants.DefaultOptions.Timeout,
-    allowedUpdates: string[] = [],
+    limit: number = this._polling.limit,
+    options: PollingOptions = {
+      timeout: this._polling.timeout,
+      allowedUpdates: this._polling.allowedUpdates,
+    },
   ): Promise<void> {
     this._polling.limit = limit;
-    this._polling.timeout = timeout;
-    this._polling.allowedUpdates = allowedUpdates;
+    this._polling.timeout = options.timeout;
+    this._polling.allowedUpdates = options.allowedUpdates;
 
     if (!this._polling.started) {
       this._polling.started = true;
