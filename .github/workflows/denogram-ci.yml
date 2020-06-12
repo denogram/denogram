@@ -1,0 +1,24 @@
+name: denogram ci
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: denogram tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: clone repository
+        uses: actions/checkout@v2
+      - name: install deno
+        uses: denolib/setup-deno
+        with:
+          deno-version: v1.1.0
+
+      - name: check is formatted
+        run: deno fmt --check
+
+      - name: lint
+        run: deno lint --unstable
+
+#      - name: test
+#        run: deno test --allow-read --allow-write
