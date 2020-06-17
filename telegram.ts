@@ -1,14 +1,14 @@
 // Copyright 2020 the denogram authors. All rights reserved. MIT license.
-import { TelegramClient } from "./client.ts";
+import { Client } from "./client.ts";
 import { Update, User, Chat, Message } from "./_types/mod.ts";
 import { GetUpdatesParams, SendMessageParams } from "./_types/params/mod.ts";
 
 /** Telegram */
 export class Telegram {
-  public client: TelegramClient;
+  public client: Client;
 
-  constructor(public readonly _token: string) {
-    this.client = new TelegramClient(_token);
+  constructor(private readonly _token: string) {
+    this.client = new Client(_token);
   }
 
   /**
@@ -17,12 +17,12 @@ export class Telegram {
    */
   public getUpdates(
     offset: number,
-    params: Omit<GetUpdatesParams, "offset">,
+    options: Omit<GetUpdatesParams, "offset">,
   ): Promise<Update[]> {
     return this.client.method<Update[]>(
-      `getUpdates?offset=${offset}&limit=${params.limit}&timeout=${params.timeout}`,
+      `getUpdates?offset=${offset}&limit=${options.limit}&timeout=${options.timeout}`,
       {
-        allowed_updates: params.allowedUpdates,
+        allowed_updates: options.allowedUpdates,
       },
     );
   }
@@ -41,11 +41,11 @@ export class Telegram {
    */
   public sendMessage(
     chatId: number,
-    params: Omit<SendMessageParams, "chat_id">,
+    options: Omit<SendMessageParams, "chat_id">,
   ): Promise<Message> {
     return this.client.method<Message>("sendMessage", {
       chat_id: chatId,
-      ...params,
+      ...options,
     });
   }
 

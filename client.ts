@@ -2,10 +2,10 @@
 import { TelegramError } from "./error.ts";
 
 /**
- * Telegram client.
+ * Telegram Bot API client.
  * Ref: https://core.telegram.org/bots/api#making-requests
  */
-export class TelegramClient {
+export class Client {
   constructor(private readonly _token: string) {
   }
 
@@ -13,6 +13,7 @@ export class TelegramClient {
     name: string,
     payload = {},
   ): Promise<T> {
+    // https://api.telegram.org/bot<bot_token>/<method_name>
     const res = await fetch(
       `https://api.telegram.org/bot${this._token}/${name}`,
       {
@@ -25,12 +26,11 @@ export class TelegramClient {
       },
     );
     const data = await res.json();
-    const { ok, result } = data;
 
-    if (!ok) {
+    if (!data.ok) {
       throw new TelegramError(data);
     }
 
-    return result;
+    return data.result;
   }
 }
