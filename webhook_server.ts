@@ -25,7 +25,7 @@ export class WebhookServer {
         continue;
       }
 
-      // Parse decoded request body
+      // Decode and parse request body
       const buf: Uint8Array = await Deno.readAll(req.body);
       const decoder = new TextDecoder();
       const update = JSON.parse(decoder.decode(buf));

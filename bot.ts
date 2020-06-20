@@ -45,12 +45,8 @@ export class Bot extends Composer<Context> {
   private _handleUpdate(update: Update): void {
     logger.info(`Processing update ${update.update_id}`);
 
-    try {
-      this._context = new Context(update, this._telegram);
-      this.middleware(this._context, async () => {});
-    } catch (e) {
-      logger.error(e.message);
-    }
+    this._context = new Context(update, this._telegram);
+    this.middleware(this._context, async () => {});
   }
 
   /** Handle updates */

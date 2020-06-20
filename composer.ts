@@ -38,13 +38,13 @@ export class Composer<TContext extends Context> {
     return (ctx: TContext, next: NextFunction<TContext>) => {
       let index = -1;
       return execute(0, ctx);
-      function execute(i: number, context: TContext) {
+      async function execute(i: number, context: TContext) {
         if (i <= index) {
           throw new Error("NextFunction called multiple times");
         }
         index = i;
         const handler = middleware[i] ? middleware[i] : next;
-        handler(context, async (ctx = context) => execute(i + 1, ctx));
+        await handler(context, async (ctx = context) => execute(i + 1, ctx));
       }
     };
   }
