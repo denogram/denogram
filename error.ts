@@ -1,14 +1,13 @@
 // Copyright 2020 the denogram authors. All rights reserved. MIT license.
 /** Telegram error */
 export class TelegramError extends Error {
-  constructor(message: string) {
-    super(message);
-  }
-}
+  public code: number;
+  public description: string;
 
-/** Bot error */
-export class BotError extends Error {
-  constructor(message: string) {
-    super(message);
+  constructor(code: number, description: string) {
+    super(`${code}: ${description}`);
+
+    this.code = code;
+    this.description = description;
   }
 }

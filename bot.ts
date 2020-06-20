@@ -1,106 +1,55 @@
 // Copyright 2020 the denogram authors. All rights reserved. MIT license.
+import { Composer } from "./composer.ts";
 import { Context } from "./context.ts";
-import { BotError } from "./error.ts";
 import { Telegram } from "./telegram.ts";
-import { Update } from "./_types/mod.ts";
-import { GetUpdatesParams } from "./_types/params/mod.ts";
+import { WebhookServer } from "./webhook_server.ts";
+import { Update, GetUpdatesParameters, SetWebhookParameters } from "./types.ts";
 import { logger } from "./_util/mod.ts";
-import { Logger } from "./deps.ts";
 
-export type PollingConfig = GetUpdatesParams & {
-  started: boolean;
-};
+/** Polling options */
+export type PollingOptions = GetUpdatesParameters;
 
-export type PollingOptions = Omit<GetUpdatesParams, "offset" | "limit">;
+/** Webhook options */
+export interface WebhookOptions extends SetWebhookParameters {
+  port: number;
+}
 
-export type Handler = (ctx: Context) => void;
-
-// TODO(stanislavstrelnikov): replace with middleware
-interface Command {
-  readonly command: string;
-  readonly handler: Handler;
+/** Launch options */
+export interface LaunchOptions {
+  polling?: PollingOptions;
+  webhook?: WebhookOptions;
 }
 
 /** Telegram bot */
-export class Bot {
-  private _polling: PollingConfig = {
+export class Bot extends Composer<Context> {
+  private readonly _polling = {
     offset: 0,
     limit: 100,
     timeout: 30,
-    allowedUpdates: [],
+    allowedUpdates: [] as string[],
     started: false,
   };
+  private _webhookServer?: WebhookServer;
 
-  private readonly _telegram: Telegram = new Telegram(this._token);
+  private readonly _telegram: Telegram;
+
   private _context?: Context;
 
-  private _logger: Logger = logger;
-
   constructor(private readonly _token: string) {
-  }
+    super();
 
-  private _commands: Command[] = [];
-
-  /** Find command */
-  private _findCommand(command: string): Command | undefined {
-    return this._commands.find((el) => el.command === command);
-  }
-
-  /** Set handler for start command */
-  public start(handler: Handler): void {
-    if (!this._findCommand("start")) {
-      this._commands.push({ command: "start", handler });
-    } else {
-      throw new BotError("Handler for start command already exists");
-    }
-  }
-
-  /** Set handler for help command */
-  public help(handler: Handler): void {
-    if (!this._findCommand("help")) {
-      this._commands.push({ command: "help", handler });
-    } else {
-      throw new BotError("Handler for help command already exists");
-    }
-  }
-
-  /** Set handler for command */
-  public command(command: string, handler: Handler): void {
-    if (!this._findCommand(command)) {
-      this._commands.push({ command, handler });
-    } else {
-      throw new BotError("Handler for this command already exists");
-    }
-  }
-
-  /** Handle command */
-  private _handleCommand(command: string): void {
-    const _command = this._findCommand(command);
-    if (_command) {
-      if (this._context !== undefined) {
-        _command.handler(this._context);
-      }
-    }
+    this._telegram = new Telegram(this._token);
   }
 
   /** Handle update */
   private _handleUpdate(update: Update): void {
-    this._logger.info(`Processing update ${update.update_id}`);
+    logger.info(`Processing update ${update.update_id}`);
 
-    this._context = new Context(update, this._telegram);
-
-    if (update?.message?.text !== undefined) {
-      const _text = update.message.text;
-
-      // If command
-      if (
-        _text.length > 1 &&
-        _text.length < 33 &&
-        _text.startsWith("/")
-      ) {
-        const command = _text.substr(1);
-        this._handleCommand(command);
-      }
+    try {
+      this._context = new Context(update, this._telegram);
+      this.middleware(this._context, async () => {});
+    } catch (e) {
+      logger.error(e.message);
     }
   }
 
@@ -111,6 +60,10 @@ export class Bot {
 
   /** Fetch updates */
   private async _fetchUpdates(): Promise<void> {
+    if (!this._polling.started) {
+      return;
+    }
+
     const _updates = await this._telegram.getUpdates(this._polling.offset, {
       limit: this._polling.limit,
       timeout: this._polling.timeout,
@@ -123,43 +76,89 @@ export class Bot {
       this._polling.offset = _updates[_updates.length - 1].update_id + 1;
     }
 
-    if (this._polling) {
-      await this._fetchUpdates();
-    }
+    this._fetchUpdates();
   }
 
   /** Start polling */
   private async _startPolling(
-    limit: number = this._polling.limit,
-    options: PollingOptions = {
-      timeout: this._polling.timeout,
-      allowedUpdates: this._polling.allowedUpdates,
-    },
+    offset?: number,
+    options?: Omit<PollingOptions, "offset">,
   ): Promise<void> {
-    this._polling.limit = limit;
-    this._polling.timeout = options.timeout;
-    this._polling.allowedUpdates = options.allowedUpdates;
+    if (offset !== undefined) {
+      this._polling.offset = offset;
+    }
+
+    if (options !== undefined) {
+      this._polling.limit = options.limit;
+      this._polling.timeout = options.timeout;
+      this._polling.allowedUpdates = options.allowedUpdates;
+    }
 
     if (!this._polling.started) {
       this._polling.started = true;
-      await this._fetchUpdates();
+      this._fetchUpdates();
     }
   }
 
+  /** Start webhook */
+  private async _startWebhook(
+    url: string,
+    options: Omit<WebhookOptions, "url">,
+  ): Promise<void> {
+    const { port, ...restOptions } = options;
+
+    await this._telegram.setWebhook(url, {
+      ...restOptions,
+    });
+
+    this._webhookServer = new WebhookServer({
+      url,
+      handler: this._handleUpdate.bind(this),
+    });
+    this._webhookServer.listen(port);
+  }
+
   /** Launch bot */
-  public async launch(): Promise<void> {
-    const _botInfo = await this._telegram.getMe();
+  public async launch(options?: LaunchOptions): Promise<void> {
+    logger.info("Connecting to Telegram");
 
-    this._logger.info(`Launching ${_botInfo.username}`);
+    const botInfo = await this._telegram.getMe();
 
-    await this._startPolling();
+    logger.info(`Launching ${botInfo.username}`);
+
+    // Long polling
+    if (options?.webhook === undefined) {
+      await this._telegram.deleteWebhook();
+
+      const { offset, limit, timeout, allowedUpdates } = options?.polling || {};
+
+      await this._startPolling(offset, {
+        limit: limit || this._polling.limit,
+        timeout: timeout || this._polling.timeout,
+        allowedUpdates: allowedUpdates || this._polling.allowedUpdates,
+      });
+
+      logger.info(`Bot started with long polling`);
+
+      return;
+    }
+
+    // Webhooks
+    const { url, ...restOptions } = options.webhook;
+
+    await this._startWebhook(url, restOptions);
+
+    const host = new URL(url).host;
+    logger.info(`Bot started with webhook @ ${host}`);
   }
 
   /** Stop bot */
   public async stop(): Promise<void> {
-    const _botInfo = await this._telegram.getMe();
+    logger.info("Stopping bot");
 
-    this._logger.info(`Stopping ${_botInfo.username}`);
+    if (this._webhookServer !== undefined) {
+      return this._webhookServer.close();
+    }
 
     this._polling.started = false;
   }

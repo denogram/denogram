@@ -1,14 +1,12 @@
 // Copyright 2020 the denogram authors. All rights reserved. MIT license.
 import { TelegramError } from "./error.ts";
 
-/**
- * Telegram Bot API client.
- * Ref: https://core.telegram.org/bots/api#making-requests
- */
+/** Telegram Bot API client */
 export class Client {
   constructor(private readonly _token: string) {
   }
 
+  /** @see https://core.telegram.org/bots/api#making-requests */
   public async method<T>(
     name: string,
     payload = {},
@@ -28,7 +26,7 @@ export class Client {
     const data = await res.json();
 
     if (!data.ok) {
-      throw new TelegramError(data);
+      throw new TelegramError(data.error_code, data.description);
     }
 
     return data.result;
