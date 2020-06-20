@@ -6,7 +6,7 @@ export interface NextFunction<TContext extends Context> {
 }
 
 export interface Middleware<TContext extends Context> {
-  (ctx: TContext, next: NextFunction<TContext>): void | Promise<unknown>;
+  (ctx: TContext, next: NextFunction<TContext>): void | Promise<void>;
 }
 
 /** Composer */
@@ -37,14 +37,17 @@ export class Composer<TContext extends Context> {
     }
     return (ctx: TContext, next: NextFunction<TContext>) => {
       let index = -1;
-      return execute(0, ctx);
-      async function execute(i: number, context: TContext) {
+      return call(0, ctx);
+      async function call(i: number, context: TContext) {
         if (i <= index) {
           throw new Error("NextFunction called multiple times");
         }
         index = i;
-        const handler = middleware[i] ? middleware[i] : next;
-        await handler(context, async (ctx = context) => execute(i + 1, ctx));
+        const handler = middleware[i] ?? next;
+        await handler(
+          context,
+          async (ctx: TContext = context) => call(i + 1, ctx),
+        );
       }
     };
   }

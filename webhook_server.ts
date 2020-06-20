@@ -13,8 +13,7 @@ export class WebhookServer {
 
   constructor(
     private readonly _options: WebhookServerOptions,
-  ) {
-  }
+  ) {}
 
   /** Listen */
   async listen(port: number): Promise<void> {
