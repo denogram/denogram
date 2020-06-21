@@ -4,7 +4,7 @@ import { Update } from "./types.ts";
 /** Webhook server options */
 export interface WebhookServerOptions {
   url: string;
-  handler: (update: Update) => void;
+  handler: (update: Update) => void | Promise<void>;
 }
 
 /** Webhook server */
@@ -16,7 +16,7 @@ export class WebhookServer {
   ) {}
 
   /** Listen */
-  async listen(port: number): Promise<void> {
+  public async listen(port: number): Promise<void> {
     this._server = serve({ port });
     for await (const req of this._server) {
       const path = new URL(this._options.url).pathname;
@@ -34,7 +34,7 @@ export class WebhookServer {
   }
 
   /** Close */
-  close(): void {
+  public close(): void {
     if (this._server !== undefined) {
       this._server.close();
     }
