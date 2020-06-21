@@ -1,7 +1,9 @@
 // DenoBot (@DenoBot)
-import { Bot } from "../bot.ts";
+import { Bot } from "https://deno.land/x/telegram@0.1.1/bot.ts";
 
-const bot = new Bot(Deno.env.get("BOT_TOKEN") as string);
+const token = Deno.env.get("BOT_TOKEN") as string;
+
+const bot = new Bot(token);
 
 bot.use(async (ctx, next) => {
   try {
@@ -12,13 +14,13 @@ bot.use(async (ctx, next) => {
 });
 
 bot.use(async (ctx) => {
-  if (ctx.message?.text === "/start") {
+  const text = ctx.message?.text
+
+  if (text === "/start") {
     await ctx.reply("hello, world");
   }
 
-  if (
-    ctx.message?.text === "/stars" || ctx.message?.text === "/stars@DenoBot"
-  ) {
+  if (text === "/stars" || text === "/stars@DenoBot") {
     const res = await fetch("https://api.github.com/repos/denogram/denogram");
     const data = await res.json();
     await ctx.reply(`Stars: ${data.stargazers_count}`);

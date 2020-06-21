@@ -206,30 +206,30 @@ export class Context {
   }
 
   public replyWithMarkdownV2(
-    text: string,
+    markdown: string,
     options?: ReplyWithMarkdownV2Options,
   ): Promise<Message> | undefined {
-    return this.reply(text, {
+    return this.reply(markdown, {
       parse_mode: "MarkdownV2",
       ...options,
     });
   }
 
   public replyWithHTML(
-    text: string,
+    html: string,
     options?: ReplyWithHTMLOptions,
   ): Promise<Message> | undefined {
-    return this.reply(text, {
+    return this.reply(html, {
       parse_mode: "HTML",
       ...options,
     });
   }
 
   public replyWithMarkdown(
-    text: string,
+    markdown: string,
     options?: ReplyWithMarkdownOptions,
   ): Promise<Message> | undefined {
-    return this.reply(text, {
+    return this.reply(markdown, {
       parse_mode: "Markdown",
       ...options,
     });
