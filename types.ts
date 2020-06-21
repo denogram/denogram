@@ -1,4 +1,18 @@
 // Copyright 2020 the denogram authors. All rights reserved. MIT license.
+
+export type UpdateType =
+  | "message"
+  | "edited_message"
+  | "channel_post"
+  | "edited_channel_post"
+  | "inline_query"
+  | "chosen_inline_result"
+  | "callback_query"
+  | "shipping_query"
+  | "pre_checkout_query"
+  | "poll"
+  | "poll_answer";
+
 /** @see https://core.telegram.org/bots/api#update */
 export interface Update {
   update_id: number;
@@ -58,6 +72,39 @@ export interface Chat {
   sticker_set_name?: string;
   can_set_sticker_set?: boolean;
 }
+
+export type MessageSubType =
+  | "text"
+  | "animation"
+  | "audio"
+  | "document"
+  | "photo"
+  | "sticker"
+  | "video"
+  | "video_note"
+  | "voice"
+  | "contact"
+  | "dice"
+  | "game"
+  | "poll"
+  | "venue"
+  | "location"
+  | "new_chat_members"
+  | "left_chat_member"
+  | "new_chat_title"
+  | "new_chat_photo"
+  | "delete_chat_photo"
+  | "group_chat_created"
+  | "supergroup_chat_created"
+  | "channel_chat_created"
+  | "migrate_to_chat_id"
+  | "migrate_from_chat_id"
+  | "pinned_message"
+  | "invoice"
+  | "successful_payment"
+  | "connected_website"
+  | "passport_data"
+  | "forward_date";
 
 /** @see https://core.telegram.org/bots/api#message */
 export interface Message {
