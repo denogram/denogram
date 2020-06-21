@@ -1,9 +1,11 @@
 // Copyright 2020 the denogram authors. All rights reserved. MIT license.
 import { Telegram } from "./telegram.ts";
 import {
+  UpdateType,
   Update,
   User,
   Chat,
+  MessageSubType,
   Message,
   BotCommand,
   InlineQuery,
@@ -17,7 +19,7 @@ import {
   ForwardMessageParameters,
 } from "./types.ts";
 
-const updateTypes: string[] = [
+const updateTypes: UpdateType[] = [
   "message",
   "edited_message",
   "channel_post",
@@ -31,7 +33,7 @@ const updateTypes: string[] = [
   "poll_answer",
 ];
 
-const messageSubTypes: string[] = [
+const messageSubTypes: MessageSubType[] = [
   "text",
   "animation",
   "audio",
@@ -65,18 +67,22 @@ const messageSubTypes: string[] = [
   "forward_date",
 ];
 
-const messageSubTypesMapping = {
+const messageSubTypesMapping: Record<string, unknown> = {
   forward_date: "forward",
 };
 
-export interface State {
-  [key: string]: unknown;
-}
+export type State = Record<string, unknown>;
 
 export type ReplyOptions = Omit<
   SendMessageParameters,
   "chat_id" | "text" | "reply_to_message_id"
 >;
+
+export type ReplyWithMarkdownV2Options = Omit<ReplyOptions, "parse_mode">;
+
+export type ReplyWithHTMLOptions = Omit<ReplyOptions, "parse_mode">;
+
+export type ReplyWithMarkdownOptions = Omit<ReplyOptions, "parse_mode">;
 
 export type ForwardMessageOptions = Omit<
   ForwardMessageParameters,
@@ -85,23 +91,26 @@ export type ForwardMessageOptions = Omit<
 
 /** Context */
 export class Context {
-  public readonly updateType: string;
-  public readonly updateSubTypes: string[];
+  private _state?: State;
+
+  public readonly updateType: UpdateType;
+  public readonly updateSubTypes: MessageSubType[];
 
   constructor(
     public readonly update: Update,
     public readonly telegram: Telegram,
   ) {
-    this.updateType = updateTypes.find((key) => key in this.update) as string;
-    if (this.updateType === "message") {
-      // TODO(stanislavstrelnikov): remove @ts-ignore
+    this.updateType = updateTypes.find((key: UpdateType) =>
+      key in this.update
+    ) as UpdateType;
+    if (this.updateType === "message" || this.updateType === "channel_post") {
       this.updateSubTypes = messageSubTypes
-        // deno-lint-ignore ban-ts-comment
-        // @ts-ignore
-        .filter((key: string) => key in this.update[this.updateType])
-        // deno-lint-ignore ban-ts-comment
-        // @ts-ignore
-        .map((type: string) => messageSubTypesMapping[type] || type);
+        .filter((key: MessageSubType) =>
+          key in (this.update[this.updateType] as Message)
+        )
+        .map((type: MessageSubType) =>
+          (messageSubTypesMapping[type] as MessageSubType) || type
+        );
     } else {
       this.updateSubTypes = [];
     }
@@ -173,14 +182,14 @@ export class Context {
   }
 
   get state(): State {
-    if (!this.state) {
-      this.state = {};
+    if (this._state === undefined) {
+      this._state = {};
     }
-    return this.state;
+    return this._state;
   }
 
   set state(value: State) {
-    this.state = { ...value };
+    this._state = { ...value };
   }
 
   public reply(
@@ -194,6 +203,36 @@ export class Context {
         ...options,
       });
     }
+  }
+
+  public replyWithMarkdownV2(
+    text: string,
+    options?: ReplyWithMarkdownV2Options,
+  ): Promise<Message> | undefined {
+    return this.reply(text, {
+      parse_mode: "MarkdownV2",
+      ...options,
+    });
+  }
+
+  public replyWithHTML(
+    text: string,
+    options?: ReplyWithHTMLOptions,
+  ): Promise<Message> | undefined {
+    return this.reply(text, {
+      parse_mode: "HTML",
+      ...options,
+    });
+  }
+
+  public replyWithMarkdown(
+    text: string,
+    options?: ReplyWithMarkdownOptions,
+  ): Promise<Message> | undefined {
+    return this.reply(text, {
+      parse_mode: "Markdown",
+      ...options,
+    });
   }
 
   public forwardMessage(
