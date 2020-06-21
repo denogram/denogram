@@ -14,7 +14,7 @@ bot.use(async (ctx, next) => {
 });
 
 bot.use(async (ctx) => {
-  const text = ctx.message?.text
+  const text = ctx.message?.text;
 
   if (text === "/start") {
     await ctx.reply("hello, world");
