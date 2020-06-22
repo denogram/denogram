@@ -32,7 +32,7 @@ export class Composer<TContext extends Context> {
     updateTypes: UpdateType[] | MessageSubType[] | UpdateType | MessageSubType,
     middleware: Middleware<TContext>,
   ): void {
-    const types = typeof updateTypes === "string" ? [updateTypes] : updateTypes;
+    const types = this.normalizeTextArguments(updateTypes);
     return this.use(Composer.mount(types, middleware));
   }
 
