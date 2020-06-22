@@ -1,3 +1,4 @@
+// Copyright 2020 the denogram authors. All rights reserved. MIT license.
 import { serve, Server } from "./deps.ts";
 import { Update } from "./types.ts";
 
