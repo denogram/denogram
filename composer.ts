@@ -22,7 +22,9 @@ export class Composer<TContext extends Context> {
 
   /** Register middleware */
   public use(...middleware: ReadonlyArray<Middleware<TContext>>): void {
-    this.middleware = Composer.compose<TContext>([this.middleware, ...middleware]);
+    this.middleware = Composer.compose<TContext>(
+      [this.middleware, ...middleware],
+    );
   }
 
   /** Register middleware for update types */
@@ -42,7 +44,8 @@ export class Composer<TContext extends Context> {
         updateTypes.some(
             (type: UpdateType | MessageSubType) =>
               ctx.updateSubTypes.includes(type as MessageSubType),
-          ) && middleware(ctx, next) || Composer.passThru();
+          ) && middleware(ctx, next) ||
+        Composer.passThru();
     };
   }
 
