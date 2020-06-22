@@ -32,8 +32,8 @@ export class Composer<TContext extends Context> {
     updateTypes: UpdateType[] | MessageSubType[] | UpdateType | MessageSubType,
     middleware: Middleware<TContext>,
   ): void {
-    const result = this.normalizeTextArguments(updateTypes);
-    return this.use(Composer.mount(result, middleware));
+    const types = this.normalizeTextArguments(updateTypes);
+    return this.use(Composer.mount(types, middleware));
   }
 
   protected static mount<TContext extends Context>(
