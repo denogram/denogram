@@ -1,5 +1,5 @@
 // DenoBot (@DenoBot)
-import { Bot } from "https://deno.land/x/telegram@0.1.1/bot.ts";
+import { Bot } from "https://deno.land/x/telegram@0.1.2/bot.ts";
 
 const token = Deno.env.get("BOT_TOKEN") as string;
 
