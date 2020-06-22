@@ -20,6 +20,12 @@ export interface LaunchOptions {
   webhook?: WebhookOptions;
 }
 
+/** Start polling options */
+export type StartPollingOptions = Omit<PollingOptions, "offset">;
+
+/** Start webhook options */
+export type StartWebhookOptions = Omit<WebhookOptions, "url">;
+
 /** Telegram bot */
 export class Bot extends Composer<Context> {
   private readonly _polling = {
@@ -60,7 +66,8 @@ export class Bot extends Composer<Context> {
       return;
     }
 
-    const _updates = await this._telegram.getUpdates(this._polling.offset, {
+    const _updates = await this._telegram.getUpdates({
+      offset: this._polling.offset,
       limit: this._polling.limit,
       timeout: this._polling.timeout,
       allowedUpdates: this._polling.allowedUpdates,
@@ -78,7 +85,7 @@ export class Bot extends Composer<Context> {
   /** Start polling */
   private async _startPolling(
     offset?: number,
-    options?: Omit<PollingOptions, "offset">,
+    options?: StartPollingOptions,
   ): Promise<void> {
     if (offset !== undefined) {
       this._polling.offset = offset;
@@ -99,11 +106,12 @@ export class Bot extends Composer<Context> {
   /** Start webhook */
   private async _startWebhook(
     url: string,
-    options: Omit<WebhookOptions, "url">,
+    options: StartWebhookOptions,
   ): Promise<void> {
     const { port, ...restOptions } = options;
 
-    await this._telegram.setWebhook(url, {
+    await this._telegram.setWebhook({
+      url,
       ...restOptions,
     });
 

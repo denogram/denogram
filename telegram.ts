@@ -11,37 +11,27 @@ import {
   SetWebhookParameters,
   SendMessageParameters,
   ForwardMessageParameters,
+  SendPhotoParameters,
 } from "./types.ts";
-
-export type GetUpdatesOptions = Omit<GetUpdatesParameters, "offset">;
-
-export type SetWebhookOptions = Omit<SetWebhookParameters, "url">;
-
-export type SendMessageOptions = Omit<SendMessageParameters, "chat_id">;
-
-export type ForwardMessageOptions = Omit<ForwardMessageParameters, "chat_id">;
-
-export type SendPhotoOptions = Omit<ForwardMessageParameters, "chat_id">;
 
 /** Telegram */
 export class Telegram extends Client {
   /** @see https://core.telegram.org/bots/api#getupdates */
   public getUpdates(
-    offset: number,
-    options: GetUpdatesOptions,
+    parameters: GetUpdatesParameters,
   ): Promise<Update[]> {
     return this.method<Update[]>(
-      `getUpdates?offset=${offset}&limit=${options.limit}&timeout=${options.timeout}`,
+      `getUpdates?offset=${parameters.offset}&limit=${parameters.limit}&timeout=${parameters.timeout}`,
       {
-        allowed_updates: options.allowedUpdates,
+        allowed_updates: parameters.allowedUpdates,
       },
     );
   }
 
   /** @see https://core.telegram.org/bots/api#setwebhook */
-  public setWebhook(url: string, options: SetWebhookOptions): Promise<true> {
-    return this.method<true>(`setWebhook?url=${url}`, {
-      ...options,
+  public setWebhook(parameters: SetWebhookParameters): Promise<true> {
+    return this.method<true>(`setWebhook?url=${parameters.url}`, {
+      ...parameters,
     });
   }
 
@@ -61,40 +51,35 @@ export class Telegram extends Client {
   }
 
   /** @see https://core.telegram.org/bots/api#sendmessage */
-  public sendMessage(
-    chatId: number | string,
-    options: SendMessageOptions,
-  ): Promise<Message> {
+  public sendMessage(parameters: SendMessageParameters): Promise<Message> {
     return this.method<Message>("sendMessage", {
-      chat_id: chatId,
-      ...options,
+      ...parameters,
     });
   }
 
   /** @see https://core.telegram.org/bots/api#forwardmessage */
   public forwardMessage(
-    chatId: number | string,
-    options: ForwardMessageOptions,
+    parameters: ForwardMessageParameters,
   ): Promise<Message> {
     return this.method<Message>("forwardMessage", {
-      chat_id: chatId,
-      ...options,
+      ...parameters,
     });
   }
 
   /** @see https://core.telegram.org/bots/api#sendphoto */
-  public sendPhoto(
-    chatId: number,
-    options: SendPhotoOptions,
-  ): Promise<Message> {
+  public sendPhoto(parameters: SendPhotoParameters): Promise<Message> {
     return this.method<Message>("sendPhoto", {
-      chat_id: chatId,
-      ...options,
+      ...parameters,
     });
   }
 
+  /** @see https://core.telegram.org/bots/api#leavechat */
+  public leaveChat(chatId: number | string): Promise<true> {
+    return this.method<true>(`leaveChat?chat_id=${chatId}`);
+  }
+
   /** @see https://core.telegram.org/bots/api#getchat */
-  public getChat(chatId: number): Promise<Chat> {
+  public getChat(chatId: number | string): Promise<Chat> {
     return this.method<Chat>(`getChat?chat_id=${chatId}`);
   }
 

@@ -1,10 +1,13 @@
 // Copyright 2020 the denogram authors. All rights reserved. MIT license.
 import { Context } from "./context.ts";
+import { UpdateType, MessageSubType } from "./types.ts";
 
+/** Middleware next function */
 export interface NextFunction<TContext extends Context> {
   (ctx?: TContext): Promise<void>;
 }
 
+/** Middleware */
 export interface Middleware<TContext extends Context> {
   (ctx: TContext, next: NextFunction<TContext>): void | Promise<void>;
 }
@@ -18,14 +21,36 @@ export class Composer<TContext extends Context> {
   }
 
   /** Register middleware */
-  public use(middleware: Middleware<TContext>): void {
-    this.middleware = Composer.compose<TContext>([this.middleware, middleware]);
+  public use(...middleware: ReadonlyArray<Middleware<TContext>>): void {
+    this.middleware = Composer.compose<TContext>([this.middleware, ...middleware]);
+  }
+
+  /** Register middleware for update types */
+  public on(
+    updateTypes: UpdateType[] | MessageSubType[],
+    middleware: Middleware<TContext>,
+  ): void {
+    return this.use(Composer.mount(updateTypes, middleware));
+  }
+
+  protected static mount<TContext extends Context>(
+    updateTypes: UpdateType[] | MessageSubType[],
+    middleware: Middleware<TContext>,
+  ) {
+    return (ctx: TContext, next: NextFunction<TContext>) => {
+      (updateTypes as UpdateType[]).includes(ctx.updateType) ||
+        updateTypes.some(
+            (type: UpdateType | MessageSubType) =>
+              ctx.updateSubTypes.includes(type as MessageSubType),
+          ) && middleware(ctx, next) || Composer.passThru();
+    };
   }
 
   protected static passThru<TContext extends Context>(): Middleware<TContext> {
     return (ctx: TContext, next: NextFunction<TContext>) => next(ctx);
   }
 
+  /** Compose middleware */
   protected static compose<TContext extends Context>(
     middleware: ReadonlyArray<Middleware<TContext>>,
   ): Middleware<TContext> {

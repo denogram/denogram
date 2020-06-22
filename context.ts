@@ -67,10 +67,6 @@ const messageSubTypes: MessageSubType[] = [
   "forward_date",
 ];
 
-const messageSubTypesMapping: Record<string, unknown> = {
-  forward_date: "forward",
-};
-
 export type State = Record<string, unknown>;
 
 export type ReplyOptions = Omit<
@@ -107,9 +103,6 @@ export class Context {
       this.updateSubTypes = messageSubTypes
         .filter((key: MessageSubType) =>
           key in (this.update[this.updateType] as Message)
-        )
-        .map((type: MessageSubType) =>
-          (messageSubTypesMapping[type] as MessageSubType) || type
         );
     } else {
       this.updateSubTypes = [];
@@ -197,7 +190,8 @@ export class Context {
     options?: ReplyOptions,
   ): Promise<Message> | undefined {
     if (this.message !== undefined && this.chat !== undefined) {
-      return this.telegram.sendMessage(this.chat.id, {
+      return this.telegram.sendMessage({
+        chat_id: this.chat.id,
         text,
         reply_to_message_id: this.message.message_id,
         ...options,
@@ -240,7 +234,8 @@ export class Context {
     options: ForwardMessageOptions,
   ): Promise<Message> | undefined {
     if (this.chat !== undefined) {
-      return this.telegram.forwardMessage(chatId, {
+      return this.telegram.forwardMessage({
+        chat_id: chatId,
         from_chat_id: this.chat.id,
         ...options,
       });
