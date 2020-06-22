@@ -29,10 +29,11 @@ export class Composer<TContext extends Context> {
 
   /** Register middleware for update types */
   public on(
-    updateTypes: UpdateType[] | MessageSubType[],
+    updateTypes: UpdateType[] | MessageSubType[] | UpdateType | MessageSubType,
     middleware: Middleware<TContext>,
   ): void {
-    return this.use(Composer.mount(updateTypes, middleware));
+    const result = this.normalizeTextArguments(updateTypes);
+    return this.use(Composer.mount(result, middleware));
   }
 
   protected static mount<TContext extends Context>(
@@ -47,6 +48,16 @@ export class Composer<TContext extends Context> {
           ) && middleware(ctx, next) ||
         Composer.passThru();
     };
+  }
+
+  protected normalizeTextArguments(
+    argument: UpdateType[] | MessageSubType[] | UpdateType | MessageSubType,
+  ): any {
+    if (typeof argument === "string") {
+      return [argument];
+    } else {
+      return argument;
+    }
   }
 
   protected static passThru<TContext extends Context>(): Middleware<TContext> {
