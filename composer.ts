@@ -32,7 +32,7 @@ export class Composer<TContext extends Context> {
     updateTypes: UpdateType[] | MessageSubType[] | UpdateType | MessageSubType,
     middleware: Middleware<TContext>,
   ): void {
-    const types = this.normalizeTextArguments(updateTypes);
+    const types = typeof updateTypes === "string" ? [updateTypes] : updateTypes;
     return this.use(Composer.mount(types, middleware));
   }
 
@@ -52,7 +52,7 @@ export class Composer<TContext extends Context> {
 
   protected normalizeTextArguments(
     argument: UpdateType[] | MessageSubType[] | UpdateType | MessageSubType,
-  ): any {
+  ): UpdateType[] | MessageSubType[] {
     if (typeof argument === "string") {
       return [argument];
     } else {
