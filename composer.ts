@@ -1,6 +1,6 @@
 // Copyright 2020 the denogram authors. All rights reserved. MIT license.
 import { Context } from "./context.ts";
-import { UpdateType, MessageSubType } from "./types.ts";
+import { UpdateType, MessageSubType, Update } from "./types.ts";
 
 /** Middleware next function */
 export interface NextFunction<TContext extends Context> {
@@ -52,7 +52,7 @@ export class Composer<TContext extends Context> {
 
   protected normalizeTextArguments(
     argument: UpdateType[] | MessageSubType[] | UpdateType | MessageSubType,
-  ): UpdateType[] | MessageSubType[] {
+  ): any {
     if (typeof argument === "string") {
       return [argument];
     } else {
