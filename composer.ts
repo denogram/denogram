@@ -55,11 +55,11 @@ export class Composer<TContext extends Context> {
         return;
       }
 
-      (updateType as UpdateType[]).includes(ctx.updateType) ||
+      ((updateType as UpdateType[]).includes(ctx.updateType) ||
         updateType.some(
-            (type: UpdateType | MessageSubType) =>
-              ctx.updateSubTypes.includes(type as MessageSubType),
-          ) && middleware(ctx, next);
+          (type: UpdateType | MessageSubType) =>
+            ctx.updateSubTypes.includes(type as MessageSubType),
+        )) && middleware(ctx, next);
     };
   }
 
