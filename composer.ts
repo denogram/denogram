@@ -49,9 +49,9 @@ export class Composer<TContext extends Context> {
   ): Middleware<TContext> {
     return (ctx: TContext, next: NextFunction<TContext>) => {
       if (typeof updateType === "string") {
-        ctx.updateType === updateType ||
-          ctx.updateSubTypes.includes(updateType as MessageSubType) &&
-            middleware(ctx, next);
+        (ctx.updateType === updateType ||
+          ctx.updateSubTypes.includes(updateType as MessageSubType)) &&
+          middleware(ctx, next);
         return;
       }
 
