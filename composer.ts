@@ -29,23 +29,37 @@ export class Composer<TContext extends Context> {
 
   /** Register middleware for update types */
   public on(
-    updateTypes: UpdateType[] | MessageSubType[],
+    updateType:
+      | UpdateType
+      | UpdateType[]
+      | MessageSubType
+      | MessageSubType[],
     middleware: Middleware<TContext>,
   ): void {
-    return this.use(Composer.mount(updateTypes, middleware));
+    return this.use(Composer.mount(updateType, middleware));
   }
 
   protected static mount<TContext extends Context>(
-    updateTypes: UpdateType[] | MessageSubType[],
+    updateType:
+      | UpdateType
+      | UpdateType[]
+      | MessageSubType
+      | MessageSubType[],
     middleware: Middleware<TContext>,
-  ) {
+  ): Middleware<TContext> {
     return (ctx: TContext, next: NextFunction<TContext>) => {
-      (updateTypes as UpdateType[]).includes(ctx.updateType) ||
-        updateTypes.some(
+      if (typeof updateType === "string") {
+        ctx.updateType === updateType ||
+          ctx.updateSubTypes.includes(updateType as MessageSubType) &&
+            middleware(ctx, next);
+        return;
+      }
+
+      (updateType as UpdateType[]).includes(ctx.updateType) ||
+        updateType.some(
             (type: UpdateType | MessageSubType) =>
               ctx.updateSubTypes.includes(type as MessageSubType),
-          ) && middleware(ctx, next) ||
-        Composer.passThru();
+          ) && middleware(ctx, next);
     };
   }
 
