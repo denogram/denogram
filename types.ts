@@ -13,7 +13,7 @@ export type UpdateType =
   | "poll"
   | "poll_answer";
 
-/** @see https://core.telegram.org/bots/api#update */
+/** ref: https://core.telegram.org/bots/api#update */
 export interface Update {
   update_id: number;
   message?: Message;
@@ -29,7 +29,7 @@ export interface Update {
   poll_answer?: PollAnswer;
 }
 
-/** @see https://core.telegram.org/bots/api#webhookinfo */
+/** ref: https://core.telegram.org/bots/api#webhookinfo */
 export interface WebhookInfo {
   url: string;
   has_custom_certificate: boolean;
@@ -40,7 +40,7 @@ export interface WebhookInfo {
   allowed_updates?: string[];
 }
 
-/** @see https://core.telegram.org/bots/api#user */
+/** ref: https://core.telegram.org/bots/api#user */
 export interface User {
   id: number;
   is_bot: boolean;
@@ -55,7 +55,7 @@ export interface User {
 
 export type ChatType = "private" | "group" | "supergroup" | "channel";
 
-/** @see https://core.telegram.org/bots/api#chat */
+/** ref: https://core.telegram.org/bots/api#chat */
 export interface Chat {
   id: number;
   type: ChatType;
@@ -106,7 +106,7 @@ export type MessageSubType =
   | "passport_data"
   | "forward_date";
 
-/** @see https://core.telegram.org/bots/api#message */
+/** ref: https://core.telegram.org/bots/api#message */
 export interface Message {
   message_id: number;
   from?: User;
@@ -176,7 +176,7 @@ export type MessageEntityType =
   | "text_link"
   | "text_mention";
 
-/** @see https://core.telegram.org/bots/api#messageentity */
+/** ref: https://core.telegram.org/bots/api#messageentity */
 export interface MessageEntity {
   type: MessageEntityType;
   offset: number;
@@ -186,7 +186,7 @@ export interface MessageEntity {
   language?: string;
 }
 
-/** @see https://core.telegram.org/bots/api#photosize */
+/** ref: https://core.telegram.org/bots/api#photosize */
 export interface PhotoSize {
   file_id: string;
   file_unique_id: string;
@@ -195,7 +195,7 @@ export interface PhotoSize {
   file_size?: number;
 }
 
-/** @see https://core.telegram.org/bots/api#animation */
+/** ref: https://core.telegram.org/bots/api#animation */
 export interface Animation {
   file_id: string;
   file_unique_id: string;
@@ -208,7 +208,7 @@ export interface Animation {
   file_size: number;
 }
 
-/** @see https://core.telegram.org/bots/api#audio */
+/** ref: https://core.telegram.org/bots/api#audio */
 export interface Audio {
   file_id: string;
   file_unique_id: string;
@@ -220,7 +220,7 @@ export interface Audio {
   thumb?: PhotoSize;
 }
 
-/** @see https://core.telegram.org/bots/api#document */
+/** ref: https://core.telegram.org/bots/api#document */
 export interface Document {
   file_id: string;
   file_unique_id: string;
@@ -230,7 +230,7 @@ export interface Document {
   file_size?: number;
 }
 
-/** @see https://core.telegram.org/bots/api#video */
+/** ref: https://core.telegram.org/bots/api#video */
 export interface Video {
   file_id: string;
   file_unique_id: string;
@@ -242,7 +242,7 @@ export interface Video {
   file_size?: number;
 }
 
-/** @see https://core.telegram.org/bots/api#videonote */
+/** ref: https://core.telegram.org/bots/api#videonote */
 export interface VideoNote {
   file_id: string;
   file_unique_id: string;
@@ -252,7 +252,7 @@ export interface VideoNote {
   file_size?: number;
 }
 
-/** @see https://core.telegram.org/bots/api#voice */
+/** ref: https://core.telegram.org/bots/api#voice */
 export interface Voice {
   file_id: string;
   file_unique_id: string;
@@ -261,7 +261,7 @@ export interface Voice {
   file_size?: number;
 }
 
-/** @see https://core.telegram.org/bots/api#contact */
+/** ref: https://core.telegram.org/bots/api#contact */
 export interface Contact {
   phone_number: number;
   first_name: string;
@@ -270,19 +270,19 @@ export interface Contact {
   vcard?: string;
 }
 
-/** @see https://core.telegram.org/bots/api#dice */
+/** ref: https://core.telegram.org/bots/api#dice */
 export interface Dice {
   emoji: string;
   value: number;
 }
 
-/** @see https://core.telegram.org/bots/api#polloption */
+/** ref: https://core.telegram.org/bots/api#polloption */
 export interface PollOption {
   text: string;
   voter_count: number;
 }
 
-/** @see https://core.telegram.org/bots/api#pollanswer */
+/** ref: https://core.telegram.org/bots/api#pollanswer */
 export interface PollAnswer {
   poll_id: string;
   user: User;
@@ -291,7 +291,7 @@ export interface PollAnswer {
 
 export type PollType = "regular" | "quiz";
 
-/** @see https://core.telegram.org/bots/api#poll */
+/** ref: https://core.telegram.org/bots/api#poll */
 export interface Poll {
   id: string;
   question: string;
@@ -308,13 +308,13 @@ export interface Poll {
   close_date?: number;
 }
 
-/** @see https://core.telegram.org/bots/api#location */
+/** ref: https://core.telegram.org/bots/api#location */
 export interface Location {
   longitude: number;
   latitude: number;
 }
 
-/** @see https://core.telegram.org/bots/api#venue */
+/** ref: https://core.telegram.org/bots/api#venue */
 export interface Venue {
   location: Location;
   title: string;
@@ -323,13 +323,13 @@ export interface Venue {
   foursquare_type: string;
 }
 
-/** @see https://core.telegram.org/bots/api#userprofilephoto */
+/** ref: https://core.telegram.org/bots/api#userprofilephoto */
 export interface UserProfilePhotos {
   total_count: number;
   photos: PhotoSize[];
 }
 
-/** @see https://core.telegram.org/bots/api#file */
+/** ref: https://core.telegram.org/bots/api#file */
 export interface File {
   file_id: string;
   file_unique_id: string;
@@ -343,7 +343,7 @@ export type ReplyMarkup =
   | ReplyKeyboardRemove
   | ForceReply;
 
-/** @see https://core.telegram.org/bots/api#replykeyboardmarkup */
+/** ref: https://core.telegram.org/bots/api#replykeyboardmarkup */
 export interface ReplyKeyboardMarkup {
   keyboard: KeyboardButton[][];
   resize_keyboard?: boolean;
@@ -351,7 +351,7 @@ export interface ReplyKeyboardMarkup {
   selective?: boolean;
 }
 
-/** @see https://core.telegram.org/bots/api#keyboardbutton */
+/** ref: https://core.telegram.org/bots/api#keyboardbutton */
 export interface KeyboardButton {
   text: string;
   request_contact?: boolean;
@@ -359,23 +359,23 @@ export interface KeyboardButton {
   request_poll?: KeyboardButtonPollType;
 }
 
-/** @see https://core.telegram.org/bots/api#keyboardbuttonpolltype */
+/** ref: https://core.telegram.org/bots/api#keyboardbuttonpolltype */
 export interface KeyboardButtonPollType {
   type?: PollType;
 }
 
-/** @see https://core.telegram.org/bots/api#replykeyboardremove */
+/** ref: https://core.telegram.org/bots/api#replykeyboardremove */
 export interface ReplyKeyboardRemove {
   remove_keyboard: true;
   selective?: boolean;
 }
 
-/** @see https://core.telegram.org/bots/api#inlinekeyboardmarkup */
+/** ref: https://core.telegram.org/bots/api#inlinekeyboardmarkup */
 export interface InlineKeyboardMarkup {
   inline_keyboard: InlineKeyboardButton[][];
 }
 
-/** @see https://core.telegram.org/bots/api#inlinekeyboardbutton */
+/** ref: https://core.telegram.org/bots/api#inlinekeyboardbutton */
 export interface InlineKeyboardButton {
   text: string;
   url?: string;
@@ -387,7 +387,7 @@ export interface InlineKeyboardButton {
   pay?: boolean;
 }
 
-/** @see https://core.telegram.org/bots/api#loginurl */
+/** ref: https://core.telegram.org/bots/api#loginurl */
 export interface LoginUrl {
   url: string;
   forward_text?: string;
@@ -395,7 +395,7 @@ export interface LoginUrl {
   request_write_access?: boolean;
 }
 
-/** @see https://core.telegram.org/bots/api#callbackquery */
+/** ref: https://core.telegram.org/bots/api#callbackquery */
 export interface CallbackQuery {
   id: string;
   from: User;
@@ -406,13 +406,13 @@ export interface CallbackQuery {
   game_short_name?: string;
 }
 
-/** @see https://core.telegram.org/bots/api#forcereply */
+/** ref: https://core.telegram.org/bots/api#forcereply */
 export interface ForceReply {
   force_reply: true;
   selective?: boolean;
 }
 
-/** @see https://core.telegram.org/bots/api#chatphoto */
+/** ref: https://core.telegram.org/bots/api#chatphoto */
 export interface ChatPhoto {
   small_file_id: string;
   small_file_unique_id: string;
@@ -420,7 +420,7 @@ export interface ChatPhoto {
   big_file_unique_id: string;
 }
 
-/** @see https://core.telegram.org/bots/api#chatpermissions */
+/** ref: https://core.telegram.org/bots/api#chatpermissions */
 export interface ChatPermissions {
   can_send_messages?: boolean;
   can_send_media_messages?: boolean;
@@ -432,19 +432,19 @@ export interface ChatPermissions {
   can_pin_messages?: boolean;
 }
 
-/** @see https://core.telegram.org/bots/api#botcommand */
+/** ref: https://core.telegram.org/bots/api#botcommand */
 export interface BotCommand {
   command: string;
   description: string;
 }
 
-/** @see https://core.telegram.org/bots/api#responseparameters */
+/** ref: https://core.telegram.org/bots/api#responseparameters */
 export interface ResponseParameters {
   migrate_to_chat_id?: number;
   retry_after?: number;
 }
 
-/** @see https://core.telegram.org/bots/api#inputmedia */
+/** ref: https://core.telegram.org/bots/api#inputmedia */
 export type InputMedia =
   | InputMediaPhoto
   | InputMediaVideo
@@ -452,7 +452,7 @@ export type InputMedia =
   | InputMediaAudio
   | InputMediaDocument;
 
-/** @see https://core.telegram.org/bots/api#inputmediaphoto */
+/** ref: https://core.telegram.org/bots/api#inputmediaphoto */
 export interface InputMediaPhoto {
   type: "photo";
   media: string;
@@ -460,7 +460,7 @@ export interface InputMediaPhoto {
   parse_mode?: ParseMode;
 }
 
-/** @see https://core.telegram.org/bots/api#inputmediavideo */
+/** ref: https://core.telegram.org/bots/api#inputmediavideo */
 export interface InputMediaVideo {
   type: "video";
   media: string;
@@ -473,7 +473,7 @@ export interface InputMediaVideo {
   supports_streaming?: boolean;
 }
 
-/** @see https://core.telegram.org/bots/api#inputmediaanimation */
+/** ref: https://core.telegram.org/bots/api#inputmediaanimation */
 export interface InputMediaAnimation {
   type: "animation";
   media: string;
@@ -485,7 +485,7 @@ export interface InputMediaAnimation {
   duration?: number;
 }
 
-/** @see https://core.telegram.org/bots/api#inputmediaaudio */
+/** ref: https://core.telegram.org/bots/api#inputmediaaudio */
 export interface InputMediaAudio {
   type: "audio";
   media: string;
@@ -497,7 +497,7 @@ export interface InputMediaAudio {
   title?: string;
 }
 
-/** @see https://core.telegram.org/bots/api#inputmediadocument */
+/** ref: https://core.telegram.org/bots/api#inputmediadocument */
 export interface InputMediaDocument {
   type: "document";
   media: string;
@@ -506,10 +506,10 @@ export interface InputMediaDocument {
   parse_mode?: ParseMode;
 }
 
-/** @see https://core.telegram.org/bots/api#inputfile */
+/** ref: https://core.telegram.org/bots/api#inputfile */
 export type InputFile = unknown;
 
-/** @see https://core.telegram.org/bots/api#sticker */
+/** ref: https://core.telegram.org/bots/api#sticker */
 export interface Sticker {
   file_id: string;
   file_unique_id: string;
@@ -523,7 +523,7 @@ export interface Sticker {
   file_size?: number;
 }
 
-/** @see https://core.telegram.org/bots/api#maskposition */
+/** ref: https://core.telegram.org/bots/api#maskposition */
 export interface MaskPosition {
   point: string;
   x_shift: number;
@@ -531,7 +531,7 @@ export interface MaskPosition {
   scale: number;
 }
 
-/** @see https://core.telegram.org/bots/api#inlinequery */
+/** ref: https://core.telegram.org/bots/api#inlinequery */
 export interface InlineQuery {
   id: string;
   from: User;
@@ -540,7 +540,7 @@ export interface InlineQuery {
   offset: string;
 }
 
-/** @see https://core.telegram.org/bots/api#choseninlineresult */
+/** ref: https://core.telegram.org/bots/api#choseninlineresult */
 export interface ChosenInlineResult {
   result_id: string;
   from: User;
@@ -549,7 +549,7 @@ export interface ChosenInlineResult {
   query: string;
 }
 
-/** @see https://core.telegram.org/bots/api#invoice */
+/** ref: https://core.telegram.org/bots/api#invoice */
 export interface Invoice {
   title: string;
   description: string;
@@ -558,7 +558,7 @@ export interface Invoice {
   total_amount: number;
 }
 
-/** @see https://core.telegram.org/bots/api#orderinfo */
+/** ref: https://core.telegram.org/bots/api#orderinfo */
 export interface OrderInfo {
   name?: string;
   phone_number?: string;
@@ -566,7 +566,7 @@ export interface OrderInfo {
   shipping_address?: ShippingAddress;
 }
 
-/** @see https://core.telegram.org/bots/api#shippingaddress */
+/** ref: https://core.telegram.org/bots/api#shippingaddress */
 export interface ShippingAddress {
   country_code: string;
   state: string;
@@ -576,7 +576,7 @@ export interface ShippingAddress {
   post_code: string;
 }
 
-/** @see https://core.telegram.org/bots/api#successfulpayment */
+/** ref: https://core.telegram.org/bots/api#successfulpayment */
 export interface SuccessfulPayment {
   currency: string;
   total_amount: number;
@@ -587,7 +587,7 @@ export interface SuccessfulPayment {
   provider_payment_charge_id: string;
 }
 
-/** @see https://core.telegram.org/bots/api#shippingquery */
+/** ref: https://core.telegram.org/bots/api#shippingquery */
 export interface ShippingQuery {
   id: string;
   from: User;
@@ -595,7 +595,7 @@ export interface ShippingQuery {
   shipping_address: ShippingAddress;
 }
 
-/** @see https://core.telegram.org/bots/api#precheckoutquery */
+/** ref: https://core.telegram.org/bots/api#precheckoutquery */
 export interface PreCheckoutQuery {
   id: string;
   from: User;
@@ -606,10 +606,10 @@ export interface PreCheckoutQuery {
   order_info: OrderInfo;
 }
 
-/** @see https://core.telegram.org/bots/api#passportdata */
+/** ref: https://core.telegram.org/bots/api#passportdata */
 export type PassportData = unknown;
 
-/** @see https://core.telegram.org/bots/api#game */
+/** ref: https://core.telegram.org/bots/api#game */
 export interface Game {
   title: string;
   description: string;
@@ -619,17 +619,17 @@ export interface Game {
   animation?: Animation;
 }
 
-/** @see https://core.telegram.org/bots/api#callbackgame */
+/** ref: https://core.telegram.org/bots/api#callbackgame */
 export type CallbackGame = unknown;
 
-/** @see https://core.telegram.org/bots/api#gamehighscore */
+/** ref: https://core.telegram.org/bots/api#gamehighscore */
 export interface GameHighScore {
   position: number;
   user: User;
   score: number;
 }
 
-/** @see https://core.telegram.org/bots/api#getupdates */
+/** ref: https://core.telegram.org/bots/api#getupdates */
 export interface GetUpdatesParameters {
   offset: number;
   limit: number;
@@ -637,7 +637,7 @@ export interface GetUpdatesParameters {
   allowedUpdates: string[];
 }
 
-/** @see https://core.telegram.org/bots/api#setwebhook */
+/** ref: https://core.telegram.org/bots/api#setwebhook */
 export interface SetWebhookParameters {
   url: string;
   certificate?: InputFile;
@@ -645,10 +645,10 @@ export interface SetWebhookParameters {
   allowed_updates?: string[];
 }
 
-/** @see https://core.telegram.org/bots/api#formatting-options */
+/** ref: https://core.telegram.org/bots/api#formatting-options */
 export type ParseMode = "MarkdownV2" | "HTML" | "Markdown";
 
-/** @see https://core.telegram.org/bots/api#sendmessage */
+/** ref: https://core.telegram.org/bots/api#sendmessage */
 export interface SendMessageParameters {
   chat_id: number | string;
   text: string;
@@ -659,7 +659,7 @@ export interface SendMessageParameters {
   reply_markup?: ReplyMarkup;
 }
 
-/** @see https://core.telegram.org/bots/api#forwardmessage */
+/** ref: https://core.telegram.org/bots/api#forwardmessage */
 export interface ForwardMessageParameters {
   chat_id: number | string;
   from_chat_id: number | string;
@@ -667,7 +667,7 @@ export interface ForwardMessageParameters {
   message_id: number;
 }
 
-/** @see https://core.telegram.org/bots/api#sendphoto */
+/** ref: https://core.telegram.org/bots/api#sendphoto */
 export interface SendPhotoParameters {
   chat_id: number | string;
   photo: InputFile | string;
@@ -678,7 +678,7 @@ export interface SendPhotoParameters {
   reply_markup?: ReplyMarkup;
 }
 
-/** @see https://core.telegram.org/bots/api#sendaudio */
+/** ref: https://core.telegram.org/bots/api#sendaudio */
 export interface SendAudioParameters {
   chat_id: number | string;
 }

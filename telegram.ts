@@ -1,4 +1,5 @@
 // Copyright 2020 the denogram authors. All rights reserved. MIT license.
+
 import { Client } from "./client.ts";
 import {
   Update,
@@ -16,8 +17,8 @@ import {
 
 /** Telegram */
 export class Telegram extends Client {
-  /** @see https://core.telegram.org/bots/api#getupdates */
-  public getUpdates(
+  /** ref: https://core.telegram.org/bots/api#getupdates */
+  getUpdates(
     parameters: GetUpdatesParameters,
   ): Promise<Update[]> {
     return this.method<Update[]>(
@@ -28,37 +29,37 @@ export class Telegram extends Client {
     );
   }
 
-  /** @see https://core.telegram.org/bots/api#setwebhook */
-  public setWebhook(parameters: SetWebhookParameters): Promise<true> {
+  /** ref: https://core.telegram.org/bots/api#setwebhook */
+  setWebhook(parameters: SetWebhookParameters): Promise<true> {
     return this.method<true>(`setWebhook?url=${parameters.url}`, {
       ...parameters,
     });
   }
 
-  /** @see https://core.telegram.org/bots/api#deletewebhook */
-  public deleteWebhook(): Promise<true> {
+  /** ref: https://core.telegram.org/bots/api#deletewebhook */
+  deleteWebhook(): Promise<true> {
     return this.method<true>("deleteWebhook");
   }
 
-  /** @see https://core.telegram.org/bots/api#getwebhookinfo */
-  public getWebhookInfo(): Promise<WebhookInfo> {
+  /** ref: https://core.telegram.org/bots/api#getwebhookinfo */
+  getWebhookInfo(): Promise<WebhookInfo> {
     return this.method<WebhookInfo>("getWebhookInfo");
   }
 
-  /** @see https://core.telegram.org/bots/api#getme */
-  public getMe(): Promise<User> {
+  /** ref: https://core.telegram.org/bots/api#getme */
+  getMe(): Promise<User> {
     return this.method<User>("getMe");
   }
 
-  /** @see https://core.telegram.org/bots/api#sendmessage */
-  public sendMessage(parameters: SendMessageParameters): Promise<Message> {
+  /** ref: https://core.telegram.org/bots/api#sendmessage */
+  sendMessage(parameters: SendMessageParameters): Promise<Message> {
     return this.method<Message>("sendMessage", {
       ...parameters,
     });
   }
 
-  /** @see https://core.telegram.org/bots/api#forwardmessage */
-  public forwardMessage(
+  /** ref: https://core.telegram.org/bots/api#forwardmessage */
+  forwardMessage(
     parameters: ForwardMessageParameters,
   ): Promise<Message> {
     return this.method<Message>("forwardMessage", {
@@ -66,25 +67,25 @@ export class Telegram extends Client {
     });
   }
 
-  /** @see https://core.telegram.org/bots/api#sendphoto */
-  public sendPhoto(parameters: SendPhotoParameters): Promise<Message> {
+  /** ref: https://core.telegram.org/bots/api#sendphoto */
+  sendPhoto(parameters: SendPhotoParameters): Promise<Message> {
     return this.method<Message>("sendPhoto", {
       ...parameters,
     });
   }
 
-  /** @see https://core.telegram.org/bots/api#leavechat */
-  public leaveChat(chatId: number | string): Promise<true> {
+  /** ref: https://core.telegram.org/bots/api#leavechat */
+  leaveChat(chatId: number | string): Promise<true> {
     return this.method<true>(`leaveChat?chat_id=${chatId}`);
   }
 
-  /** @see https://core.telegram.org/bots/api#getchat */
-  public getChat(chatId: number | string): Promise<Chat> {
+  /** ref: https://core.telegram.org/bots/api#getchat */
+  getChat(chatId: number | string): Promise<Chat> {
     return this.method<Chat>(`getChat?chat_id=${chatId}`);
   }
 
-  /** @see https://core.telegram.org/bots/api#deletemessage */
-  public deleteMessage(
+  /** ref: https://core.telegram.org/bots/api#deletemessage */
+  deleteMessage(
     chatId: number,
     messageId: number,
   ): Promise<true> {
@@ -94,15 +95,15 @@ export class Telegram extends Client {
     });
   }
 
-  /** @see https://core.telegram.org/bots/api#setmycommands */
-  public setMyCommands(commands: BotCommand[]): Promise<true> {
+  /** ref: https://core.telegram.org/bots/api#setmycommands */
+  setMyCommands(commands: BotCommand[]): Promise<true> {
     return this.method<true>("setMyCommands", {
       commands,
     });
   }
 
-  /** @see https://core.telegram.org/bots/api#getmycommands */
-  public getMyCommands(): Promise<BotCommand[]> {
+  /** ref: https://core.telegram.org/bots/api#getmycommands */
+  getMyCommands(): Promise<BotCommand[]> {
     return this.method<BotCommand[]>("getMyCommands");
   }
 }

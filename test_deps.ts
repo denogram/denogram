@@ -3,4 +3,4 @@
 export const test = Deno.test;
 
 // testing/
-export { assertThrowsAsync } from "https://deno.land/std@0.58.0/testing/asserts.ts";
+export { assertThrowsAsync } from "https://deno.land/std@0.59.0/testing/asserts.ts";

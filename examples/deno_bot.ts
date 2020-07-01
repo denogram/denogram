@@ -1,5 +1,5 @@
 // DenoBot (@DenoBot)
-import { Bot } from "https://deno.land/x/telegram@0.1.2/bot.ts";
+import { Bot } from "../mod.ts";
 
 const token = Deno.env.get("BOT_TOKEN") as string;
 
@@ -8,8 +8,8 @@ const bot = new Bot(token);
 bot.use(async (ctx, next) => {
   try {
     await next(ctx);
-  } catch (error) {
-    console.log(error.message);
+  } catch (err) {
+    console.log(err.message);
   }
 });
 

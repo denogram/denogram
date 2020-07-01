@@ -1,4 +1,5 @@
 // Copyright 2020 the denogram authors. All rights reserved. MIT license.
+
 import { Telegram } from "./telegram.ts";
 import {
   UpdateType,
@@ -18,6 +19,24 @@ import {
   SendMessageParameters,
   ForwardMessageParameters,
 } from "./types.ts";
+
+export type State = Record<string, unknown>;
+
+export type ReplyOptions = Omit<
+  SendMessageParameters,
+  "chat_id" | "text" | "reply_to_message_id"
+>;
+
+export type ReplyWithMarkdownV2Options = Omit<ReplyOptions, "parse_mode">;
+
+export type ReplyWithHTMLOptions = Omit<ReplyOptions, "parse_mode">;
+
+export type ReplyWithMarkdownOptions = Omit<ReplyOptions, "parse_mode">;
+
+export type ForwardMessageOptions = Omit<
+  ForwardMessageParameters,
+  "chat_id" | "from_chat_id"
+>;
 
 const updateTypes: UpdateType[] = [
   "message",
@@ -67,34 +86,17 @@ const messageSubTypes: MessageSubType[] = [
   "forward_date",
 ];
 
-export type State = Record<string, unknown>;
-
-export type ReplyOptions = Omit<
-  SendMessageParameters,
-  "chat_id" | "text" | "reply_to_message_id"
->;
-
-export type ReplyWithMarkdownV2Options = Omit<ReplyOptions, "parse_mode">;
-
-export type ReplyWithHTMLOptions = Omit<ReplyOptions, "parse_mode">;
-
-export type ReplyWithMarkdownOptions = Omit<ReplyOptions, "parse_mode">;
-
-export type ForwardMessageOptions = Omit<
-  ForwardMessageParameters,
-  "chat_id" | "from_chat_id"
->;
-
 /** Context */
-export class Context {
-  private _state?: State;
+export class Context<S extends State> {
+  #me?: User;
+  #state?: S;
 
-  public readonly updateType: UpdateType;
-  public readonly updateSubTypes: MessageSubType[];
+  readonly updateType: UpdateType;
+  readonly updateSubTypes: MessageSubType[];
 
   constructor(
-    public readonly update: Update,
-    public readonly telegram: Telegram,
+    readonly update: Update,
+    readonly telegram: Telegram,
   ) {
     this.updateType = updateTypes.find((key: UpdateType) =>
       key in this.update
@@ -107,6 +109,25 @@ export class Context {
     } else {
       this.updateSubTypes = [];
     }
+  }
+
+  get me(): User {
+    return this.#me as User;
+  }
+
+  set me(value: User) {
+    this.#me = value;
+  }
+
+  get state(): S {
+    if (this.#state === undefined) {
+      this.#state = {} as S;
+    }
+    return this.#state;
+  }
+
+  set state(value: S) {
+    this.#state = { ...value };
   }
 
   get message(): Message | undefined {
@@ -174,18 +195,7 @@ export class Context {
       (this.preCheckoutQuery && this.preCheckoutQuery.from);
   }
 
-  get state(): State {
-    if (this._state === undefined) {
-      this._state = {};
-    }
-    return this._state;
-  }
-
-  set state(value: State) {
-    this._state = { ...value };
-  }
-
-  public reply(
+  reply(
     text: string,
     options?: ReplyOptions,
   ): Promise<Message> | undefined {
@@ -199,7 +209,7 @@ export class Context {
     }
   }
 
-  public replyWithMarkdownV2(
+  replyWithMarkdownV2(
     markdown: string,
     options?: ReplyWithMarkdownV2Options,
   ): Promise<Message> | undefined {
@@ -209,7 +219,7 @@ export class Context {
     });
   }
 
-  public replyWithHTML(
+  replyWithHTML(
     html: string,
     options?: ReplyWithHTMLOptions,
   ): Promise<Message> | undefined {
@@ -219,7 +229,7 @@ export class Context {
     });
   }
 
-  public replyWithMarkdown(
+  replyWithMarkdown(
     markdown: string,
     options?: ReplyWithMarkdownOptions,
   ): Promise<Message> | undefined {
@@ -229,7 +239,7 @@ export class Context {
     });
   }
 
-  public forwardMessage(
+  forwardMessage(
     chatId: number | string,
     options: ForwardMessageOptions,
   ): Promise<Message> | undefined {
@@ -242,23 +252,23 @@ export class Context {
     }
   }
 
-  public getChat(): Promise<Chat> | undefined {
+  getChat(): Promise<Chat> | undefined {
     if (this.chat !== undefined) {
       return this.telegram.getChat(this.chat.id);
     }
   }
 
-  public deleteMessage(): Promise<true> | undefined {
+  deleteMessage(): Promise<true> | undefined {
     if (this.message !== undefined && this.chat !== undefined) {
       return this.telegram.deleteMessage(this.chat.id, this.message.message_id);
     }
   }
 
-  public setMyCommands(commands: BotCommand[]): Promise<true> {
+  setMyCommands(commands: BotCommand[]): Promise<true> {
     return this.telegram.setMyCommands(commands);
   }
 
-  public getMyCommands(): Promise<BotCommand[]> {
+  getMyCommands(): Promise<BotCommand[]> {
     return this.telegram.getMyCommands();
   }
 }

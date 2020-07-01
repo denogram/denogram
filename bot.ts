@@ -1,6 +1,7 @@
 // Copyright 2020 the denogram authors. All rights reserved. MIT license.
+
 import { Composer } from "./composer.ts";
-import { Context } from "./context.ts";
+import { Context, State } from "./context.ts";
 import { Telegram } from "./telegram.ts";
 import { WebhookServer } from "./webhook_server.ts";
 import { Update, GetUpdatesParameters, SetWebhookParameters } from "./types.ts";
@@ -27,119 +28,117 @@ export type StartPollingOptions = Omit<PollingOptions, "offset">;
 export type StartWebhookOptions = Omit<WebhookOptions, "url">;
 
 /** Telegram bot */
-export class Bot extends Composer<Context> {
-  private readonly _polling = {
+export class Bot extends Composer<Context<State>> {
+  readonly #polling = {
     offset: 0,
     limit: 100,
     timeout: 30,
     allowedUpdates: [] as string[],
     started: false,
   };
-  private _webhookServer?: WebhookServer;
+  #webhookServer?: WebhookServer;
+  readonly #telegram: Telegram;
+  #context?: Context<State>;
 
-  private readonly _telegram: Telegram;
-
-  private _context?: Context;
-
-  constructor(private readonly _token: string) {
+  constructor(readonly token: string) {
     super();
 
-    this._telegram = new Telegram(this._token);
+    this.#telegram = new Telegram(this.token);
   }
 
   /** Handle update */
-  private _handleUpdate(update: Update): void {
+  #handleUpdate = async (update: Update): Promise<void> => {
     logger.info(`Processing update ${update.update_id}`);
 
-    this._context = new Context(update, this._telegram);
-    this.middleware(this._context, async () => {});
-  }
+    this.#context = new Context(update, this.#telegram);
+    this.#context.me = await this.#telegram.getMe();
+    this.middleware(this.#context, async () => {});
+  };
 
   /** Handle updates */
-  private _handleUpdates(updates: Update[]): void {
-    updates.forEach(this._handleUpdate.bind(this));
-  }
+  #handleUpdates = (updates: Update[]): void => {
+    updates.forEach(this.#handleUpdate.bind(this));
+  };
 
   /** Fetch updates */
-  private async _fetchUpdates(): Promise<void> {
-    if (!this._polling.started) {
+  #fetchUpdates = async (): Promise<void> => {
+    if (!this.#polling.started) {
       return;
     }
 
-    const _updates = await this._telegram.getUpdates({
-      offset: this._polling.offset,
-      limit: this._polling.limit,
-      timeout: this._polling.timeout,
-      allowedUpdates: this._polling.allowedUpdates,
+    const _updates = await this.#telegram.getUpdates({
+      offset: this.#polling.offset,
+      limit: this.#polling.limit,
+      timeout: this.#polling.timeout,
+      allowedUpdates: this.#polling.allowedUpdates,
     });
 
-    this._handleUpdates(_updates);
+    this.#handleUpdates(_updates);
 
     if (_updates.length > 0) {
-      this._polling.offset = _updates[_updates.length - 1].update_id + 1;
+      this.#polling.offset = _updates[_updates.length - 1].update_id + 1;
     }
 
-    this._fetchUpdates();
-  }
+    this.#fetchUpdates();
+  };
 
   /** Start polling */
-  private async _startPolling(
+  #startPolling = async (
     offset?: number,
     options?: StartPollingOptions,
-  ): Promise<void> {
+  ): Promise<void> => {
     if (offset !== undefined) {
-      this._polling.offset = offset;
+      this.#polling.offset = offset;
     }
 
     if (options !== undefined) {
-      this._polling.limit = options.limit;
-      this._polling.timeout = options.timeout;
-      this._polling.allowedUpdates = options.allowedUpdates;
+      this.#polling.limit = options.limit;
+      this.#polling.timeout = options.timeout;
+      this.#polling.allowedUpdates = options.allowedUpdates;
     }
 
-    if (!this._polling.started) {
-      this._polling.started = true;
-      this._fetchUpdates();
+    if (!this.#polling.started) {
+      this.#polling.started = true;
+      this.#fetchUpdates();
     }
-  }
+  };
 
   /** Start webhook */
-  private async _startWebhook(
+  #startWebhook = async (
     url: string,
     options: StartWebhookOptions,
-  ): Promise<void> {
-    const { port, ...restOptions } = options;
+  ): Promise<void> => {
+    const { port, ...rest } = options;
 
-    await this._telegram.setWebhook({
+    await this.#telegram.setWebhook({
       url,
-      ...restOptions,
+      ...rest,
     });
 
-    this._webhookServer = new WebhookServer({
+    this.#webhookServer = new WebhookServer({
       url,
-      handler: this._handleUpdate.bind(this),
+      handler: this.#handleUpdate.bind(this),
     });
-    this._webhookServer.listen(port);
-  }
+    this.#webhookServer.listen(port);
+  };
 
   /** Launch bot */
-  public async launch(options?: LaunchOptions): Promise<void> {
+  async launch(options?: LaunchOptions): Promise<void> {
     logger.info("Connecting to Telegram");
 
-    const botInfo = await this._telegram.getMe();
-
+    const botInfo = await this.#telegram.getMe();
     logger.info(`Launching ${botInfo.username}`);
 
     // Long polling
     if (options?.webhook === undefined) {
-      await this._telegram.deleteWebhook();
+      await this.#telegram.deleteWebhook();
 
       const { offset, limit, timeout, allowedUpdates } = options?.polling || {};
 
-      await this._startPolling(offset, {
-        limit: limit || this._polling.limit,
-        timeout: timeout || this._polling.timeout,
-        allowedUpdates: allowedUpdates || this._polling.allowedUpdates,
+      await this.#startPolling(offset, {
+        limit: limit || this.#polling.limit,
+        timeout: timeout || this.#polling.timeout,
+        allowedUpdates: allowedUpdates || this.#polling.allowedUpdates,
       });
 
       logger.info(`Bot started with long polling`);
@@ -148,22 +147,22 @@ export class Bot extends Composer<Context> {
     }
 
     // Webhooks
-    const { url, ...restOptions } = options.webhook;
+    const { url, ...rest } = options.webhook;
 
-    await this._startWebhook(url, restOptions);
+    await this.#startWebhook(url, rest);
 
     const host = new URL(url).host;
     logger.info(`Bot started with webhook @ ${host}`);
   }
 
   /** Stop bot */
-  public async stop(): Promise<void> {
+  async stop(): Promise<void> {
     logger.info("Stopping bot");
 
-    if (this._webhookServer !== undefined) {
-      return this._webhookServer.close();
+    if (this.#webhookServer !== undefined) {
+      return this.#webhookServer.close();
     }
 
-    this._polling.started = false;
+    this.#polling.started = false;
   }
 }
