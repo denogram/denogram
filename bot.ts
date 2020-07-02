@@ -1,11 +1,11 @@
 // Copyright 2020 the denogram authors. All rights reserved. MIT license.
 
 import { Composer } from "./composer.ts";
-import { Context, State } from "./context.ts";
+import { State, Context } from "./context.ts";
 import { Telegram } from "./telegram.ts";
 import { WebhookServer } from "./webhook_server.ts";
 import { Update, GetUpdatesParameters, SetWebhookParameters } from "./types.ts";
-import { Logger } from "./_util/logger.ts";
+import { Logger } from "./_util/mod.ts";
 
 export type PollingOptions = GetUpdatesParameters;
 
@@ -18,11 +18,7 @@ export interface LaunchOptions {
   webhook?: WebhookOptions;
 }
 
-export type StartPollingOptions = Omit<PollingOptions, "offset">;
-
-export type StartWebhookOptions = Omit<WebhookOptions, "url">;
-
-/** Telegram bot */
+/** Telegram Bot */
 export class Bot extends Composer<Context<State>> {
   readonly #polling = {
     offset: 0,
@@ -75,15 +71,9 @@ export class Bot extends Composer<Context<State>> {
     this.#fetchUpdates();
   };
 
-  #startPolling = async (
-    offset?: number,
-    options?: StartPollingOptions,
-  ): Promise<void> => {
-    if (offset !== undefined) {
-      this.#polling.offset = offset;
-    }
-
+  #startPolling = async (options?: PollingOptions): Promise<void> => {
     if (options !== undefined) {
+      this.#polling.offset = options.offset;
       this.#polling.limit = options.limit;
       this.#polling.timeout = options.timeout;
       this.#polling.allowedUpdates = options.allowedUpdates;
@@ -95,19 +85,18 @@ export class Bot extends Composer<Context<State>> {
     }
   };
 
-  #startWebhook = async (
-    url: string,
-    options: StartWebhookOptions,
-  ): Promise<void> => {
-    const { port, ...rest } = options;
+  #startWebhook = async (options: WebhookOptions): Promise<void> => {
+    const { url, port, ...rest } = options;
 
     await this.#telegram.setWebhook({
       url,
       ...rest,
     });
 
+    const path = new URL(url).pathname;
+
     this.#webhookServer = new WebhookServer({
-      path: new URL(url).pathname,
+      path,
       handler: this.#handleUpdate.bind(this),
     });
     this.#webhookServer.listen(port);
@@ -125,30 +114,31 @@ export class Bot extends Composer<Context<State>> {
 
       const { offset, limit, timeout, allowedUpdates } = options?.polling || {};
 
-      await this.#startPolling(offset, {
+      await this.#startPolling({
+        offset: offset || this.#polling.offset,
         limit: limit || this.#polling.limit,
         timeout: timeout || this.#polling.timeout,
         allowedUpdates: allowedUpdates || this.#polling.allowedUpdates,
       });
 
       this.#logger.print(`Bot started with long polling`);
-
       return;
     }
 
     // Webhook
-    const { url, ...rest } = options.webhook;
+    await this.#startWebhook(options.webhook);
 
-    await this.#startWebhook(url, rest);
+    const host = new URL(options.webhook.url).host;
 
-    this.#logger.print(`Bot started with webhook @ ${new URL(url).host}`);
+    this.#logger.print(`Bot started with webhook @ ${host}`);
   }
 
   async stop(): Promise<void> {
     this.#logger.print("Stopping bot");
 
     if (this.#webhookServer !== undefined) {
-      return this.#webhookServer.close();
+      this.#webhookServer.close();
+      return;
     }
 
     this.#polling.started = false;

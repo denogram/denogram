@@ -13,7 +13,6 @@ export class WebhookServer {
 
   constructor(readonly options: WebhookServerOptions) {}
 
-  /** Listen */
   async listen(port: number): Promise<void> {
     this.#server = serve({ port });
     for await (const req of this.#server) {
@@ -28,7 +27,6 @@ export class WebhookServer {
     }
   }
 
-  /** Close */
   close(): void {
     if (this.#server !== undefined) {
       this.#server.close();

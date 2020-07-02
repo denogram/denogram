@@ -70,7 +70,7 @@ export class Composer<T extends Context<State>> {
       return middleware[0];
     }
 
-    return (ctx: T, next?: NextFunction<T>) => {
+    return (ctx: T, next: NextFunction<T>) => {
       let index = -1;
 
       async function dispatch(i: number) {
