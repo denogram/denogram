@@ -1,4 +1,5 @@
 // DenoBot (@DenoBot)
+
 import { Bot } from "../mod.ts";
 
 const token = Deno.env.get("BOT_TOKEN") as string;
@@ -9,11 +10,11 @@ bot.use(async (ctx, next) => {
   try {
     await next(ctx);
   } catch (err) {
-    console.log(err.message);
+    console.error(err.message);
   }
 });
 
-bot.use(async (ctx) => {
+bot.on("text", async (ctx) => {
   const text = ctx.message?.text;
 
   if (text === "/start") {

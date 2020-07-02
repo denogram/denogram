@@ -86,7 +86,6 @@ const messageSubTypes: MessageSubType[] = [
   "forward_date",
 ];
 
-/** Context */
 export class Context<S extends State> {
   #me?: User;
   #state?: S;

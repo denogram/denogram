@@ -1,11 +1,12 @@
 // BOT_TOKEN=<bot_token> deno run --allow-env --allow-net webhook.ts
+
 import * as telegram from "../mod.ts";
 
 const token = Deno.env.get("BOT_TOKEN") as string;
 
 const bot = new telegram.Bot(token);
 
-bot.use((ctx) => {
+bot.on("text", (ctx) => {
   if (ctx.message?.text === "/start") {
     ctx.reply("hello, world");
   }

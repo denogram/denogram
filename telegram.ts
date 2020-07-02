@@ -15,12 +15,10 @@ import {
   SendPhotoParameters,
 } from "./types.ts";
 
-/** Telegram */
+/** Telegram Bot API client wrapper */
 export class Telegram extends Client {
   /** ref: https://core.telegram.org/bots/api#getupdates */
-  getUpdates(
-    parameters: GetUpdatesParameters,
-  ): Promise<Update[]> {
+  getUpdates(parameters: GetUpdatesParameters): Promise<Update[]> {
     return this.method<Update[]>(
       `getUpdates?offset=${parameters.offset}&limit=${parameters.limit}&timeout=${parameters.timeout}`,
       {
@@ -59,9 +57,7 @@ export class Telegram extends Client {
   }
 
   /** ref: https://core.telegram.org/bots/api#forwardmessage */
-  forwardMessage(
-    parameters: ForwardMessageParameters,
-  ): Promise<Message> {
+  forwardMessage(parameters: ForwardMessageParameters): Promise<Message> {
     return this.method<Message>("forwardMessage", {
       ...parameters,
     });
@@ -85,10 +81,7 @@ export class Telegram extends Client {
   }
 
   /** ref: https://core.telegram.org/bots/api#deletemessage */
-  deleteMessage(
-    chatId: number,
-    messageId: number,
-  ): Promise<true> {
+  deleteMessage(chatId: number, messageId: number): Promise<true> {
     return this.method<true>("deleteMessage", {
       chat_id: chatId,
       message_id: messageId,

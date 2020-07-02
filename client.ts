@@ -12,7 +12,7 @@ export class Client {
     name: string,
     payload?: object,
   ): Promise<T> {
-    // https://api.telegram.org/bot<bot_token>/<method_name>
+    // template: https://api.telegram.org/bot<BOT_TOKEN>/<METHOD_NAME>
     const res = await fetch(
       `https://api.telegram.org/bot${this.token}/${name}`,
       {
@@ -21,7 +21,7 @@ export class Client {
           "content-type": "application/json",
           connection: "keep-alive",
         },
-        body: JSON.stringify({ ...payload }),
+        body: JSON.stringify(payload),
       },
     );
     const data = await res.json();

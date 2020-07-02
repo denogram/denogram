@@ -1,7 +1,5 @@
 {
   "imports": {
-    "http/": "https://deno.land/std@0.59.0/http/",
-    "log/": "https://deno.land/std@0.59.0/log/",
-    "testing/": "https://deno.land/std@0.59.0/testing/"
+    "http/": "https://deno.land/std@0.59.0/http/"
   }
 }

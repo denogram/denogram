@@ -3,17 +3,14 @@
 import { State, Context } from "./context.ts";
 import { UpdateType, MessageSubType } from "./types.ts";
 
-/** Middleware next function */
 export interface NextFunction<T extends Context<State>> {
   (ctx?: T): Promise<void>;
 }
 
-/** Middleware */
 export interface Middleware<T extends Context<State>> {
   (ctx: T, next: NextFunction<T>): Promise<void> | void;
 }
 
-/** Composer */
 export class Composer<T extends Context<State>> {
   middleware: Middleware<T>;
 
@@ -21,14 +18,12 @@ export class Composer<T extends Context<State>> {
     this.middleware = Composer.compose(middleware);
   }
 
-  /** Register middleware */
   use(...middleware: ReadonlyArray<Middleware<T>>): void {
     this.middleware = Composer.compose<T>(
       [this.middleware, ...middleware],
     );
   }
 
-  /** Register middleware for update types */
   on(
     updateType:
       | UpdateType
@@ -49,15 +44,11 @@ export class Composer<T extends Context<State>> {
     middleware: Middleware<T>,
   ): Middleware<T> {
     return (ctx: T, next: NextFunction<T>) => {
-      if (typeof updateType === "string") {
-        (ctx.updateType === updateType ||
-          ctx.updateSubTypes.includes(updateType as MessageSubType)) &&
-          middleware(ctx, next);
-        return;
-      }
-
-      ((updateType as UpdateType[]).includes(ctx.updateType) ||
-        updateType.some(
+      const updateTypes = typeof updateType === "string"
+        ? [updateType]
+        : updateType;
+      ((updateTypes as UpdateType[]).includes(ctx.updateType) ||
+        updateTypes.some(
           (type: UpdateType | MessageSubType) =>
             ctx.updateSubTypes.includes(type as MessageSubType),
         )) && middleware(ctx, next);
@@ -65,10 +56,9 @@ export class Composer<T extends Context<State>> {
   }
 
   static passThru<T extends Context<State>>(): Middleware<T> {
-    return (ctx: T, next?: NextFunction<T>) => next && next(ctx);
+    return (ctx: T, next: NextFunction<T>) => next(ctx);
   }
 
-  /** Compose middleware */
   static compose<T extends Context<State>>(
     middleware: ReadonlyArray<Middleware<T>>,
   ): Middleware<T> {
