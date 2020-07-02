@@ -681,4 +681,14 @@ export interface SendPhotoParameters {
 /** ref: https://core.telegram.org/bots/api#sendaudio */
 export interface SendAudioParameters {
   chat_id: number | string;
+  audio: InputFile | string;
+  caption?: string;
+  parse_mode?: ParseMode;
+  duration?: number;
+  performer?: string;
+  title?: string;
+  thumb?: InputFile | string;
+  disable_notification?: boolean;
+  reply_to_message_id?: number;
+  reply_markup?: ReplyMarkup;
 }
