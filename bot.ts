@@ -43,6 +43,10 @@ export class Bot extends Composer<Context<State>> {
     super();
   }
 
+  get telegram() {
+    return this.#telegram;
+  }
+
   #handleUpdate = async (update: Readonly<Update>): Promise<void> => {
     this.#logger.print(`Processing update ${update.update_id}`);
 
