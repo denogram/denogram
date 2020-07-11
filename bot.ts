@@ -36,9 +36,7 @@ export class Bot extends Composer<Context<State>> {
   };
   #webhookServer?: WebhookServer;
 
-  readonly telegram: Telegram = new Telegram(this.token);
-  #context?: Context<State>;
-
+  readonly #telegram: Telegram = new Telegram(this.token);
   readonly #logger: Logger = new Logger("INFO: ");
 
   constructor(readonly token: string) {
@@ -48,9 +46,10 @@ export class Bot extends Composer<Context<State>> {
   #handleUpdate = async (update: Readonly<Update>): Promise<void> => {
     this.#logger.print(`Processing update ${update.update_id}`);
 
-    this.#context = new Context(update, this.telegram);
-    this.#context.me = await this.telegram.getMe();
-    this.middleware(this.#context, async () => {});
+    const ctx = new Context(update, this.#telegram);
+    ctx.me = await this.#telegram.getMe();
+
+    this.middleware(ctx, async () => {});
   };
 
   #handleUpdates = (updates: ReadonlyArray<Update>): void => {
@@ -62,7 +61,7 @@ export class Bot extends Composer<Context<State>> {
       return;
     }
 
-    const updates = await this.telegram.getUpdates({
+    const updates = await this.#telegram.getUpdates({
       offset: this.#polling.offset,
       limit: this.#polling.limit,
       timeout: this.#polling.timeout,
@@ -95,7 +94,7 @@ export class Bot extends Composer<Context<State>> {
   #startWebhook = async (options: Readonly<WebhookOptions>): Promise<void> => {
     const { domain, path, port, ...rest } = options;
 
-    await this.telegram.setWebhook({
+    await this.#telegram.setWebhook({
       url: "https://" + domain + path,
       ...rest,
     });
@@ -110,12 +109,12 @@ export class Bot extends Composer<Context<State>> {
   async launch(options?: Readonly<LaunchOptions>): Promise<void> {
     this.#logger.print("Connecting to Telegram");
 
-    const botInfo = await this.telegram.getMe();
+    const botInfo = await this.#telegram.getMe();
     this.#logger.print(`Launching ${botInfo.username}`);
 
     // Long polling
     if (options?.webhook === undefined) {
-      await this.telegram.deleteWebhook();
+      await this.#telegram.deleteWebhook();
 
       await this.#startPolling(options?.polling);
 

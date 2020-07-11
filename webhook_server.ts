@@ -2,8 +2,7 @@
 
 import { serve, Server } from "./deps.ts";
 import { Update } from "./types.ts";
-
-const decoder = new TextDecoder();
+import { decode } from "./_util/mod.ts";
 
 export interface WebhookServerOptions {
   path: string;
@@ -26,7 +25,7 @@ export class WebhookServer {
       const buf: Uint8Array = await Deno.readAll(req.body);
 
       // Decode and parse request body
-      const update = JSON.parse(decoder.decode(buf));
+      const update = JSON.parse(decode(buf));
 
       // Handle update
       this.options.handler(update);

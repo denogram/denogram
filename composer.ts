@@ -34,7 +34,7 @@ export class Composer<T extends Context<State>> {
     middleware: Middleware<T>,
   ): Middleware<T> {
     return (ctx: T, next: NextFunction<T>) => {
-      const updateTypes = typeof updateType === "string"
+      const updateTypes = !Array.isArray(updateType)
         ? [updateType]
         : updateType;
       ((updateTypes as UpdateType[]).includes(ctx.updateType) ||

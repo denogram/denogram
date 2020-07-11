@@ -4,8 +4,6 @@ import { Bot } from "https://deno.land/x/telegram@v0.0.2/mod.ts";
 
 const token = Deno.env.get("BOT_TOKEN") as string;
 
-const bot = new Bot(token);
-
 async function fetchSourceCode(): Promise<string> {
   const res = await fetch(
     "https://raw.githubusercontent.com/denogram/denogram/master/examples/deno_bot.ts",
@@ -19,6 +17,9 @@ async function fetchStars(): Promise<number> {
   return data.stargazers_count;
 }
 
+const bot = new Bot(token);
+
+// Error handler
 bot.use(async (ctx, next) => {
   try {
     await next(ctx);
@@ -27,7 +28,7 @@ bot.use(async (ctx, next) => {
   }
 });
 
-bot.on("message", async (ctx) => {
+bot.on("text", async (ctx) => {
   const text = ctx.message?.text;
 
   if (text === "/start") {

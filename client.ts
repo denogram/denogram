@@ -11,7 +11,7 @@ export class Client {
     name: string,
     payload?: object,
   ): Promise<T> {
-    // template: https://api.telegram.org/bot<BOT_TOKEN>/<METHOD_NAME>
+    // template: https://api.telegram.org/bot<bot_token>/<method_name>
     const res = await fetch(
       `https://api.telegram.org/bot${this.token}/${name}`,
       {

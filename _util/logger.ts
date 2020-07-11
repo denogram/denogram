@@ -1,6 +1,6 @@
 // Copyright 2020 the denogram authors. All rights reserved. MIT license.
 
-const encoder = new TextEncoder();
+import { encode } from "./mod.ts";
 
 export class Logger {
   #prefix?: string;
@@ -15,9 +15,7 @@ export class Logger {
 
   print(s: Readonly<string>): void {
     Deno.stdout.write(
-      encoder.encode(
-        `${(this.#prefix ?? "")}${new Date().toISOString()} ${s}\n`,
-      ),
+      encode(`${(this.#prefix ?? "")}${new Date().toISOString()} ${s}\n`),
     );
   }
 }
