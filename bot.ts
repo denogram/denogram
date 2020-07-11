@@ -4,12 +4,19 @@ import { Composer } from "./composer.ts";
 import { State, Context } from "./context.ts";
 import { Telegram } from "./telegram.ts";
 import { WebhookServer } from "./webhook_server.ts";
-import { Update, GetUpdatesParameters, SetWebhookParameters } from "./types.ts";
+import {
+  UpdateType,
+  Update,
+  GetUpdatesParameters,
+  SetWebhookParameters,
+} from "./types.ts";
 import { Logger } from "./_util/mod.ts";
 
 export type PollingOptions = GetUpdatesParameters;
 
-export interface WebhookOptions extends SetWebhookParameters {
+export interface WebhookOptions extends Omit<SetWebhookParameters, "url"> {
+  domain: string;
+  path: string;
   port: number;
 }
 
@@ -24,25 +31,25 @@ export class Bot extends Composer<Context<State>> {
     offset: 0,
     limit: 100,
     timeout: 30,
-    allowedUpdates: [] as string[],
+    allowedUpdates: [] as UpdateType[],
     started: false,
   };
   #webhookServer?: WebhookServer;
-  readonly #telegram: Telegram;
+
+  readonly telegram: Telegram = new Telegram(this.token);
   #context?: Context<State>;
+
   readonly #logger: Logger = new Logger("INFO: ");
 
   constructor(readonly token: string) {
     super();
-
-    this.#telegram = new Telegram(this.token);
   }
 
-  #handleUpdate = async (update: Update): Promise<void> => {
+  #handleUpdate = async (update: Readonly<Update>): Promise<void> => {
     this.#logger.print(`Processing update ${update.update_id}`);
 
-    this.#context = new Context(update, this.#telegram);
-    this.#context.me = await this.#telegram.getMe();
+    this.#context = new Context(update, this.telegram);
+    this.#context.me = await this.telegram.getMe();
     this.middleware(this.#context, async () => {});
   };
 
@@ -55,7 +62,7 @@ export class Bot extends Composer<Context<State>> {
       return;
     }
 
-    const updates = await this.#telegram.getUpdates({
+    const updates = await this.telegram.getUpdates({
       offset: this.#polling.offset,
       limit: this.#polling.limit,
       timeout: this.#polling.timeout,
@@ -71,7 +78,7 @@ export class Bot extends Composer<Context<State>> {
     this.#fetchUpdates();
   };
 
-  #startPolling = async (options?: PollingOptions): Promise<void> => {
+  #startPolling = async (options?: Readonly<PollingOptions>): Promise<void> => {
     if (options !== undefined) {
       this.#polling.offset = options.offset;
       this.#polling.limit = options.limit;
@@ -85,15 +92,13 @@ export class Bot extends Composer<Context<State>> {
     }
   };
 
-  #startWebhook = async (options: WebhookOptions): Promise<void> => {
-    const { url, port, ...rest } = options;
+  #startWebhook = async (options: Readonly<WebhookOptions>): Promise<void> => {
+    const { domain, path, port, ...rest } = options;
 
-    await this.#telegram.setWebhook({
-      url,
+    await this.telegram.setWebhook({
+      url: "https://" + domain + path,
       ...rest,
     });
-
-    const path = new URL(url).pathname;
 
     this.#webhookServer = new WebhookServer({
       path,
@@ -102,35 +107,26 @@ export class Bot extends Composer<Context<State>> {
     this.#webhookServer.listen(port);
   };
 
-  async launch(options?: LaunchOptions): Promise<void> {
+  async launch(options?: Readonly<LaunchOptions>): Promise<void> {
     this.#logger.print("Connecting to Telegram");
 
-    const botInfo = await this.#telegram.getMe();
+    const botInfo = await this.telegram.getMe();
     this.#logger.print(`Launching ${botInfo.username}`);
 
     // Long polling
     if (options?.webhook === undefined) {
-      await this.#telegram.deleteWebhook();
+      await this.telegram.deleteWebhook();
 
-      const { offset, limit, timeout, allowedUpdates } = options?.polling || {};
+      await this.#startPolling(options?.polling);
 
-      await this.#startPolling({
-        offset: offset || this.#polling.offset,
-        limit: limit || this.#polling.limit,
-        timeout: timeout || this.#polling.timeout,
-        allowedUpdates: allowedUpdates || this.#polling.allowedUpdates,
-      });
-
-      this.#logger.print(`Bot started with long polling`);
+      this.#logger.print("Bot started with long polling");
       return;
     }
 
     // Webhook
     await this.#startWebhook(options.webhook);
 
-    const host = new URL(options.webhook.url).host;
-
-    this.#logger.print(`Bot started with webhook @ ${host}`);
+    this.#logger.print(`Bot started with webhook @ ${options.webhook.domain}`);
   }
 
   async stop(): Promise<void> {

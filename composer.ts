@@ -15,32 +15,22 @@ export class Composer<T extends Context<State>> {
   middleware: Middleware<T>;
 
   constructor(...middleware: ReadonlyArray<Middleware<T>>) {
-    this.middleware = Composer.compose(middleware);
+    this.middleware = Composer.compose<T>(middleware);
   }
 
   use(...middleware: ReadonlyArray<Middleware<T>>): void {
-    this.middleware = Composer.compose<T>(
-      [this.middleware, ...middleware],
-    );
+    this.middleware = Composer.compose<T>([this.middleware, ...middleware]);
   }
 
   on(
-    updateType:
-      | UpdateType
-      | UpdateType[]
-      | MessageSubType
-      | MessageSubType[],
+    updateType: UpdateType | UpdateType[] | MessageSubType | MessageSubType[],
     middleware: Middleware<T>,
   ): void {
-    return this.use(Composer.mount(updateType, middleware));
+    return this.use(Composer.mount<T>(updateType, middleware));
   }
 
   static mount<T extends Context<State>>(
-    updateType:
-      | UpdateType
-      | UpdateType[]
-      | MessageSubType
-      | MessageSubType[],
+    updateType: UpdateType | UpdateType[] | MessageSubType | MessageSubType[],
     middleware: Middleware<T>,
   ): Middleware<T> {
     return (ctx: T, next: NextFunction<T>) => {
@@ -48,10 +38,10 @@ export class Composer<T extends Context<State>> {
         ? [updateType]
         : updateType;
       ((updateTypes as UpdateType[]).includes(ctx.updateType) ||
-        updateTypes.some(
-          (type: UpdateType | MessageSubType) =>
-            ctx.updateSubTypes.includes(type as MessageSubType),
-        )) && middleware(ctx, next);
+        updateTypes.some((type: UpdateType | MessageSubType) =>
+          ctx.updateSubTypes.includes(type as MessageSubType)
+        )) &&
+        middleware(ctx, next);
     };
   }
 
@@ -63,7 +53,7 @@ export class Composer<T extends Context<State>> {
     middleware: ReadonlyArray<Middleware<T>>,
   ): Middleware<T> {
     if (middleware.length === 0) {
-      return Composer.passThru();
+      return Composer.passThru<T>();
     }
 
     if (middleware.length === 1) {
@@ -80,8 +70,7 @@ export class Composer<T extends Context<State>> {
 
         index = i;
 
-        const handler = middleware[i] ?? next;
-        await handler(ctx, dispatch.bind(null, i + 1));
+        await (middleware[i] ?? next)(ctx, dispatch.bind(null, i + 1));
       }
 
       return dispatch(0);

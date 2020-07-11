@@ -1,7 +1,8 @@
-// BOT_TOKEN=<bot_token> deno run --allow-env --allow-net webhook.ts
+// PORT=80 BOT_TOKEN=<bot_token> deno run --allow-env --allow-net webhook.ts
 
 import * as telegram from "../mod.ts";
 
+const port = parseInt(Deno.env.get("PORT") as string) || 80;
 const token = Deno.env.get("BOT_TOKEN") as string;
 
 const bot = new telegram.Bot(token);
@@ -13,8 +14,10 @@ bot.on("text", (ctx) => {
 });
 
 bot.launch({
+  // url: https://denogram.dev/<bot_token>
   webhook: {
-    url: `https://denogram.ngrok.io/${token}`,
-    port: 80,
+    domain: "denogram.dev",
+    path: `/${token}`,
+    port,
   },
 });

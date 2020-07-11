@@ -345,7 +345,7 @@ export type ReplyMarkup =
 
 /** ref: https://core.telegram.org/bots/api#replykeyboardmarkup */
 export interface ReplyKeyboardMarkup {
-  keyboard: KeyboardButton[][];
+  keyboard: Array<KeyboardButton[]>;
   resize_keyboard?: boolean;
   one_time_keyboard?: boolean;
   selective?: boolean;
@@ -372,7 +372,7 @@ export interface ReplyKeyboardRemove {
 
 /** ref: https://core.telegram.org/bots/api#inlinekeyboardmarkup */
 export interface InlineKeyboardMarkup {
-  inline_keyboard: InlineKeyboardButton[][];
+  inline_keyboard: Array<InlineKeyboardButton[]>;
 }
 
 /** ref: https://core.telegram.org/bots/api#inlinekeyboardbutton */
@@ -634,7 +634,7 @@ export interface GetUpdatesParameters {
   offset: number;
   limit: number;
   timeout: number;
-  allowedUpdates: string[];
+  allowedUpdates: UpdateType[];
 }
 
 /** ref: https://core.telegram.org/bots/api#setwebhook */
@@ -642,7 +642,7 @@ export interface SetWebhookParameters {
   url: string;
   certificate?: InputFile;
   max_connections?: number;
-  allowed_updates?: string[];
+  allowed_updates?: UpdateType[];
 }
 
 /** ref: https://core.telegram.org/bots/api#formatting-options */
@@ -691,4 +691,88 @@ export interface SendAudioParameters {
   disable_notification?: boolean;
   reply_to_message_id?: number;
   reply_markup?: ReplyMarkup;
+}
+
+/** ref: https://core.telegram.org/bots/api#senddocument */
+export interface SendDocumentParameters {
+  chat_id: number | string;
+  document: InputFile | string;
+  thumb?: InputFile | string;
+  caption?: string;
+  parse_mode?: ParseMode;
+  disable_notification?: boolean;
+  reply_to_message_id?: number;
+  reply_markup?: ReplyMarkup;
+}
+
+/** ref: https://core.telegram.org/bots/api#sendvideo */
+export interface SendVideoParameters {
+  chat_id: number | string;
+  video: InputFile | string;
+  duration?: number;
+  width?: number;
+  height?: number;
+  thumb?: InputFile | string;
+  caption?: string;
+  parse_mode?: ParseMode;
+  supports_streaming?: boolean;
+  disable_notification?: boolean;
+  reply_to_message_id?: number;
+  reply_markup?: ReplyMarkup;
+}
+
+/** ref: https://core.telegram.org/bots/api#sendanimation */
+export interface SendAnimationParameters {
+  chat_id: number | string;
+  animation: InputFile | string;
+  duration?: number;
+  width?: number;
+  height?: number;
+  thumb?: InputFile | string;
+  caption?: string;
+  parse_mode?: ParseMode;
+  supports_streaming?: boolean;
+  disable_notification?: boolean;
+  reply_to_message_id?: number;
+  reply_markup?: ReplyMarkup;
+}
+
+/** ref: https://core.telegram.org/bots/api#sendvoice */
+export interface SendAudioParameters {
+  chat_id: number | string;
+  voice: InputFile | string;
+  caption?: string;
+  parse_mode?: ParseMode;
+  duration?: number;
+  disable_notification?: boolean;
+  reply_to_message_id?: number;
+  reply_markup?: ReplyMarkup;
+}
+
+/** ref: https://core.telegram.org/bots/api#sendvideonote */
+export interface SendVideoNoteParameters {
+  chat_id: number | string;
+  video_note: InputFile | string;
+  duration?: number;
+  length?: number;
+  thumb?: InputFile | string;
+  disable_notification?: boolean;
+  reply_to_message_id?: number;
+  reply_markup?: ReplyMarkup;
+}
+
+/** ref: https://core.telegram.org/bots/api#kickchatmember */
+export interface KickChatMemberParameters {
+  chat_id: number | string;
+  user_id: number;
+  until_date: number;
+}
+
+/** ref: https://core.telegram.org/bots/api#answercallbackquery */
+export interface AnswerCallbackQueryParameters {
+  callback_query_id: string;
+  text?: string;
+  show_alert?: boolean;
+  url?: string;
+  cache_time?: number;
 }

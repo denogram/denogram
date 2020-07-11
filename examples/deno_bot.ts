@@ -1,10 +1,23 @@
-// DenoBot (@DenoBot)
+// Source code of the DenoBot (@DenoBot)
 
-import { Bot } from "../mod.ts";
+import { Bot } from "https://deno.land/x/telegram@v0.0.2/mod.ts";
 
 const token = Deno.env.get("BOT_TOKEN") as string;
 
 const bot = new Bot(token);
+
+async function fetchSourceCode(): Promise<string> {
+  const res = await fetch(
+    "https://raw.githubusercontent.com/denogram/denogram/master/examples/deno_bot.ts",
+  );
+  return res.text();
+}
+
+async function fetchStars(): Promise<number> {
+  const res = await fetch("https://api.github.com/repos/denogram/denogram");
+  const data = await res.json();
+  return data.stargazers_count;
+}
 
 bot.use(async (ctx, next) => {
   try {
@@ -14,7 +27,7 @@ bot.use(async (ctx, next) => {
   }
 });
 
-bot.on("text", async (ctx) => {
+bot.on("message", async (ctx) => {
   const text = ctx.message?.text;
 
   if (text === "/start") {
@@ -22,9 +35,13 @@ bot.on("text", async (ctx) => {
   }
 
   if (text === "/stars" || text === "/stars@DenoBot") {
-    const res = await fetch("https://api.github.com/repos/denogram/denogram");
-    const data = await res.json();
-    await ctx.reply(`Stars: ${data.stargazers_count}`);
+    const stars = await fetchStars();
+    await ctx.reply(`Stars: ${stars}`);
+  }
+
+  if (text === "/src" || text === "/src@DenoBot") {
+    const src = await fetchSourceCode();
+    await ctx.replyWithMarkdownV2(`\`\`\`${src}\`\`\``);
   }
 });
 

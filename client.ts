@@ -4,8 +4,7 @@ import { TelegramError } from "./error.ts";
 
 /** Telegram Bot API client */
 export class Client {
-  constructor(readonly token: string) {
-  }
+  constructor(readonly token: string) {}
 
   /** ref: https://core.telegram.org/bots/api#making-requests */
   async method<T>(

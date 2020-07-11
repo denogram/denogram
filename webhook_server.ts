@@ -3,6 +3,8 @@
 import { serve, Server } from "./deps.ts";
 import { Update } from "./types.ts";
 
+const decoder = new TextDecoder();
+
 export interface WebhookServerOptions {
   path: string;
   handler: (update: Update) => Promise<void> | void;
@@ -13,16 +15,20 @@ export class WebhookServer {
 
   constructor(readonly options: WebhookServerOptions) {}
 
-  async listen(port: number): Promise<void> {
-    this.#server = serve({ port });
+  async listen(port: number, hostname?: string): Promise<void> {
+    this.#server = serve({ port, hostname });
     for await (const req of this.#server) {
-      if (req.method !== "POST" && req.url !== this.options.path) continue;
+      if (req.method !== "POST" && req.url !== this.options.path) {
+        continue;
+      }
 
       // Read request body
       const buf: Uint8Array = await Deno.readAll(req.body);
-      // Decode and parse request body
-      const update = JSON.parse(new TextDecoder().decode(buf));
 
+      // Decode and parse request body
+      const update = JSON.parse(decoder.decode(buf));
+
+      // Handle update
       this.options.handler(update);
     }
   }

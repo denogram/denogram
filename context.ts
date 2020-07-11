@@ -18,6 +18,7 @@ import {
   PollAnswer,
   SendMessageParameters,
   ForwardMessageParameters,
+  AnswerCallbackQueryParameters,
 } from "./types.ts";
 
 export type State = Record<string, unknown>;
@@ -36,6 +37,11 @@ export type ReplyWithMarkdownOptions = Omit<ReplyOptions, "parse_mode">;
 export type ForwardMessageOptions = Omit<
   ForwardMessageParameters,
   "chat_id" | "from_chat_id"
+>;
+
+export type AnswerCallbackQueryOptions = Omit<
+  AnswerCallbackQueryParameters,
+  "callback_query_id"
 >;
 
 const updateTypes: UpdateType[] = [
@@ -257,9 +263,14 @@ export class Context<S extends State> {
     }
   }
 
-  deleteMessage(): Promise<true> | undefined {
-    if (this.message !== undefined && this.chat !== undefined) {
-      return this.telegram.deleteMessage(this.chat.id, this.message.message_id);
+  answerCallbackQuery(
+    options?: AnswerCallbackQueryOptions,
+  ): Promise<true> | undefined {
+    if (this.callbackQuery !== undefined) {
+      return this.telegram.answerCallbackQuery({
+        callback_query_id: this.callbackQuery.id,
+        ...options,
+      });
     }
   }
 
@@ -269,5 +280,11 @@ export class Context<S extends State> {
 
   getMyCommands(): Promise<BotCommand[]> {
     return this.telegram.getMyCommands();
+  }
+
+  deleteMessage(): Promise<true> | undefined {
+    if (this.message !== undefined && this.chat !== undefined) {
+      return this.telegram.deleteMessage(this.chat.id, this.message.message_id);
+    }
   }
 }
