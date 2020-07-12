@@ -2,8 +2,5 @@
 
 export { Logger } from "./logger.ts";
 
-const decoder = new TextDecoder();
-export const decode = decoder.decode;
-
-const encoder = new TextEncoder();
-export const encode = encoder.encode;
+export const decoder = new TextDecoder();
+export const encoder = new TextEncoder();

@@ -96,24 +96,43 @@ export class Context<S extends State> {
   #me?: User;
   #state?: S;
 
-  readonly updateType: UpdateType;
-  readonly updateSubTypes: MessageSubType[];
+  readonly #update: Update;
+  readonly #telegram: Telegram;
 
-  constructor(
-    readonly update: Update,
-    readonly telegram: Telegram,
-  ) {
-    this.updateType = updateTypes.find((key: UpdateType) =>
-      key in this.update
+  readonly #updateType: UpdateType;
+  readonly #updateSubTypes: MessageSubType[];
+
+  constructor(update: Update, telegram: Telegram) {
+    this.#update = update;
+    this.#telegram = telegram;
+
+    this.#updateType = updateTypes.find((key: UpdateType) =>
+      key in this.#update
     ) as UpdateType;
-    if (this.updateType === "message" || this.updateType === "channel_post") {
-      this.updateSubTypes = messageSubTypes
+    if (this.#updateType === "message" || this.#updateType === "channel_post") {
+      this.#updateSubTypes = messageSubTypes
         .filter((key: MessageSubType) =>
-          key in (this.update[this.updateType] as Message)
+          key in (this.#update[this.#updateType] as Message)
         );
     } else {
-      this.updateSubTypes = [];
+      this.#updateSubTypes = [];
     }
+  }
+
+  get update(): Update {
+    return this.#update;
+  }
+
+  get telegram(): Telegram {
+    return this.#telegram;
+  }
+
+  get updateType(): UpdateType {
+    return this.#updateType;
+  }
+
+  get updateSubTypes(): MessageSubType[] {
+    return this.#updateSubTypes;
   }
 
   get me(): User {
@@ -136,47 +155,47 @@ export class Context<S extends State> {
   }
 
   get message(): Message | undefined {
-    return this.update.message;
+    return this.#update.message;
   }
 
   get editedMessage(): Message | undefined {
-    return this.update.edited_message;
+    return this.#update.edited_message;
   }
 
   get channelPost(): Message | undefined {
-    return this.update.channel_post;
+    return this.#update.channel_post;
   }
 
   get editedChannelPost(): Message | undefined {
-    return this.update.edited_channel_post;
+    return this.#update.edited_channel_post;
   }
 
   get inlineQuery(): InlineQuery | undefined {
-    return this.update.inline_query;
+    return this.#update.inline_query;
   }
 
   get chosenInlineResult(): ChosenInlineResult | undefined {
-    return this.update.chosen_inline_result;
+    return this.#update.chosen_inline_result;
   }
 
   get callbackQuery(): CallbackQuery | undefined {
-    return this.update.callback_query;
+    return this.#update.callback_query;
   }
 
   get shippingQuery(): ShippingQuery | undefined {
-    return this.update.shipping_query;
+    return this.#update.shipping_query;
   }
 
   get preCheckoutQuery(): PreCheckoutQuery | undefined {
-    return this.update.pre_checkout_query;
+    return this.#update.pre_checkout_query;
   }
 
   get poll(): Poll | undefined {
-    return this.update.poll;
+    return this.#update.poll;
   }
 
   get pollAnswer(): PollAnswer | undefined {
-    return this.update.poll_answer;
+    return this.#update.poll_answer;
   }
 
   get chat(): Chat | undefined {
@@ -205,7 +224,7 @@ export class Context<S extends State> {
     options?: ReplyOptions,
   ): Promise<Message> | undefined {
     if (this.message !== undefined && this.chat !== undefined) {
-      return this.telegram.sendMessage({
+      return this.#telegram.sendMessage({
         chat_id: this.chat.id,
         text,
         reply_to_message_id: this.message.message_id,
@@ -249,7 +268,7 @@ export class Context<S extends State> {
     options: ForwardMessageOptions,
   ): Promise<Message> | undefined {
     if (this.chat !== undefined) {
-      return this.telegram.forwardMessage({
+      return this.#telegram.forwardMessage({
         chat_id: chatId,
         from_chat_id: this.chat.id,
         ...options,
@@ -259,7 +278,7 @@ export class Context<S extends State> {
 
   getChat(): Promise<Chat> | undefined {
     if (this.chat !== undefined) {
-      return this.telegram.getChat(this.chat.id);
+      return this.#telegram.getChat(this.chat.id);
     }
   }
 
@@ -267,7 +286,7 @@ export class Context<S extends State> {
     options?: AnswerCallbackQueryOptions,
   ): Promise<true> | undefined {
     if (this.callbackQuery !== undefined) {
-      return this.telegram.answerCallbackQuery({
+      return this.#telegram.answerCallbackQuery({
         callback_query_id: this.callbackQuery.id,
         ...options,
       });
@@ -275,16 +294,19 @@ export class Context<S extends State> {
   }
 
   setMyCommands(commands: BotCommand[]): Promise<true> {
-    return this.telegram.setMyCommands(commands);
+    return this.#telegram.setMyCommands(commands);
   }
 
   getMyCommands(): Promise<BotCommand[]> {
-    return this.telegram.getMyCommands();
+    return this.#telegram.getMyCommands();
   }
 
   deleteMessage(): Promise<true> | undefined {
     if (this.message !== undefined && this.chat !== undefined) {
-      return this.telegram.deleteMessage(this.chat.id, this.message.message_id);
+      return this.#telegram.deleteMessage(
+        this.chat.id,
+        this.message.message_id,
+      );
     }
   }
 }

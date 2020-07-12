@@ -36,14 +36,17 @@ export class Bot extends Composer<Context<State>> {
   };
   #webhookServer?: WebhookServer;
 
-  readonly #telegram: Telegram = new Telegram(this.token);
+  readonly #telegram: Telegram;
+
   readonly #logger: Logger = new Logger("INFO: ");
 
-  constructor(readonly token: string) {
+  constructor(token: string) {
     super();
+
+    this.#telegram = new Telegram(token);
   }
 
-  get telegram() {
+  get telegram(): Telegram {
     return this.#telegram;
   }
 

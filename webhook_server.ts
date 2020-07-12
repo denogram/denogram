@@ -2,7 +2,7 @@
 
 import { serve, Server } from "./deps.ts";
 import { Update } from "./types.ts";
-import { decode } from "./_util/mod.ts";
+import { decoder } from "./_util/mod.ts";
 
 export interface WebhookServerOptions {
   path: string;
@@ -11,13 +11,16 @@ export interface WebhookServerOptions {
 
 export class WebhookServer {
   #server?: Server;
+  readonly #options: WebhookServerOptions;
 
-  constructor(readonly options: WebhookServerOptions) {}
+  constructor(options: WebhookServerOptions) {
+    this.#options = options;
+  }
 
   async listen(port: number, hostname?: string): Promise<void> {
     this.#server = serve({ port, hostname });
     for await (const req of this.#server) {
-      if (req.method !== "POST" && req.url !== this.options.path) {
+      if (req.method !== "POST" && req.url !== this.#options.path) {
         continue;
       }
 
@@ -25,10 +28,10 @@ export class WebhookServer {
       const buf: Uint8Array = await Deno.readAll(req.body);
 
       // Decode and parse request body
-      const update = JSON.parse(decode(buf));
+      const update = JSON.parse(decoder.decode(buf));
 
       // Handle update
-      this.options.handler(update);
+      this.#options.handler(update);
     }
   }
 

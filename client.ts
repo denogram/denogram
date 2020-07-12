@@ -4,7 +4,11 @@ import { TelegramError } from "./error.ts";
 
 /** Telegram Bot API client */
 export class Client {
-  constructor(readonly token: string) {}
+  readonly #token: string;
+
+  constructor(token: string) {
+    this.#token = token;
+  }
 
   /** ref: https://core.telegram.org/bots/api#making-requests */
   async method<T>(
@@ -13,7 +17,7 @@ export class Client {
   ): Promise<T> {
     // template: https://api.telegram.org/bot<bot_token>/<method_name>
     const res = await fetch(
-      `https://api.telegram.org/bot${this.token}/${name}`,
+      `https://api.telegram.org/bot${this.#token}/${name}`,
       {
         method: "POST",
         headers: {
