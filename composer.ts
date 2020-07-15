@@ -24,14 +24,14 @@ export class Composer<T extends Context<State>> {
 
   on(
     updateType: UpdateType | UpdateType[] | MessageSubType | MessageSubType[],
-    middleware: Middleware<T>,
+    ...middleware: ReadonlyArray<Middleware<T>>
   ): void {
-    return this.use(Composer.mount<T>(updateType, middleware));
+    return this.use(Composer.mount<T>(updateType, ...middleware));
   }
 
   static mount<T extends Context<State>>(
     updateType: UpdateType | UpdateType[] | MessageSubType | MessageSubType[],
-    middleware: Middleware<T>,
+    ...middleware: ReadonlyArray<Middleware<T>>
   ): Middleware<T> {
     return (ctx: T, next: NextFunction<T>) => {
       const updateTypes = !Array.isArray(updateType)
@@ -41,7 +41,7 @@ export class Composer<T extends Context<State>> {
         updateTypes.some((type: UpdateType | MessageSubType) =>
           ctx.updateSubTypes.includes(type as MessageSubType)
         )) &&
-        middleware(ctx, next);
+        Composer.compose(middleware)(ctx, next);
     };
   }
 

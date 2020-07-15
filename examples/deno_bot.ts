@@ -1,6 +1,6 @@
 // Source code of the DenoBot (@DenoBot)
 
-import { Bot } from "https://deno.land/x/telegram@v0.0.2/mod.ts";
+import { Bot } from "https://deno.land/x/telegram@v0.0.3/mod.ts";
 
 const token = Deno.env.get("BOT_TOKEN") as string;
 

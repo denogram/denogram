@@ -1,4 +1,6 @@
-/.vscode/
+/.vscode/*
+!/.vscode/settings.json
+
 /.idea/
 
 .DS_Store
