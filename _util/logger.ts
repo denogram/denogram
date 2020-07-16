@@ -9,15 +9,17 @@ export class Logger {
     this.#prefix = prefix;
   }
 
-  set prefix(value: string) {
+  set prefix(value: Readonly<string>) {
     this.#prefix = value;
   }
 
+  #formatDate = (date: Readonly<Date>): string => {
+    const s = date.toISOString();
+    return `${s.slice(0, 10).replaceAll("-", "/")} ${s.slice(11, 19)}`;
+  };
+
   print(s: Readonly<string>): void {
-    Deno.stdout.write(
-      encoder.encode(
-        `${(this.#prefix ?? "")}${new Date().toISOString()} ${s}\n`,
-      ),
-    );
+    const date = this.#formatDate(new Date());
+    Deno.stdout.write(encoder.encode(`${this.#prefix ?? ""}${date} ${s}\n`));
   }
 }
