@@ -634,7 +634,7 @@ export interface GetUpdatesParameters {
   offset: number;
   limit: number;
   timeout: number;
-  allowedUpdates: UpdateType[];
+  allowed_updates: UpdateType[];
 }
 
 /** ref: https://core.telegram.org/bots/api#setwebhook */

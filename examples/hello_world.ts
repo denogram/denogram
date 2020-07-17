@@ -1,13 +1,24 @@
 // BOT_TOKEN=<bot_token> deno run --allow-env --allow-net hello_world.ts
 
-import * as telegram from "../mod.ts";
+import { createBot } from "../mod.ts";
 
-const bot = new telegram.Bot(Deno.env.get("BOT_TOKEN") as string);
+const token = Deno.env.get("BOT_TOKEN") as string;
 
-bot.on("text", (ctx) => {
-  if (ctx.message?.text === "/start") {
-    ctx.reply("hello, world");
+const bot = createBot(token);
+
+for await (const update of bot) {
+  if (update.message !== undefined) {
+    const { chat, text } = update.message;
+
+    if (text === "/start") {
+      try {
+        await bot.telegram.sendMessage({
+          chat_id: chat.id,
+          text: "hello, world",
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
   }
-});
-
-bot.launch();
+}

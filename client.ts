@@ -13,7 +13,7 @@ export class Client {
   /** ref: https://core.telegram.org/bots/api#making-requests */
   async method<T>(
     name: string,
-    payload?: object,
+    payload?: Record<string, unknown>,
   ): Promise<T> {
     // template: https://api.telegram.org/bot<bot_token>/<method_name>
     const res = await fetch(
