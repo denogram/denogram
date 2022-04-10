@@ -2,19 +2,9 @@
 
 import { Client } from "./client.ts";
 import {
-  Update,
-  WebhookInfo,
-  User,
-  Chat,
-  Message,
-  BotCommand,
-  GetUpdatesParameters,
-  SetWebhookParameters,
-  SendMessageParameters,
-  ForwardMessageParameters,
-  SendPhotoParameters,
-  KickChatMemberParameters,
-  AnswerCallbackQueryParameters,
+  AnswerCallbackQueryParameters, BotCommand, Chat, ForwardMessageParameters, GetUpdatesParameters,
+  KickChatMemberParameters, Message, SendChatActionParameters, SendMessageParameters, SendPhotoParameters,
+  SetWebhookParameters, Update, User, WebhookInfo,
 } from "./types.ts";
 
 /** Telegram Bot API client wrapper */
@@ -43,6 +33,10 @@ export class Telegram extends Client {
   getMe(): Promise<User> {
     return this.method<User>("getMe");
   }
+
+  /** ref: https://core.telegram.org/bots/api#sendchataction */
+  sendChatAction(parameters: SendChatActionParameters): Promise<true> {
+    return this.method<true>("sendChatAction", { ...parameters });  }
 
   /** ref: https://core.telegram.org/bots/api#sendmessage */
   sendMessage(parameters: SendMessageParameters): Promise<Message> {
