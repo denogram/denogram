@@ -648,6 +648,24 @@ export interface SetWebhookParameters {
 /** ref: https://core.telegram.org/bots/api#formatting-options */
 export type ParseMode = "MarkdownV2" | "HTML" | "Markdown";
 
+/** ref: https://core.telegram.org/bots/api#sendchataction */
+export type SendChatActionAction =
+  | "choose_sticker"
+  | "find_location"
+  | "record_video_note"
+  | "record_video"
+  | "record_voice"
+  | "typing"
+  | "upload_document"
+  | "upload_photo"
+  | "upload_video_note";
+
+/** ref: https://core.telegram.org/bots/api#sendchataction */
+export interface SendChatActionParameters {
+  chat_id: number | string;
+  action: SendChatActionAction;
+}
+
 /** ref: https://core.telegram.org/bots/api#sendmessage */
 export interface SendMessageParameters {
   chat_id: number | string;
