@@ -1,7 +1,7 @@
 // Copyright 2020 the denogram authors. All rights reserved. MIT license.
 
-import { State, Context } from "./context.ts";
-import { UpdateType, MessageSubType } from "./types.ts";
+import { Context, State } from "./context.ts";
+import { MessageSubType, UpdateType } from "./types.ts";
 
 export interface NextFunction<T extends Context<State>> {
   (ctx?: T): Promise<void>;
@@ -34,14 +34,14 @@ export class Composer<T extends Context<State>> {
     ...middleware: ReadonlyArray<Middleware<T>>
   ): Middleware<T> {
     return (ctx: T, next: NextFunction<T>) => {
-      const updateTypes = !Array.isArray(updateType)
-        ? [updateType]
-        : updateType;
-      ((updateTypes as UpdateType[]).includes(ctx.updateType) ||
-        updateTypes.some((type: UpdateType | MessageSubType) =>
-          ctx.updateSubTypes.includes(type as MessageSubType)
-        )) &&
+      const updateTypes = [updateType].flat();
+
+      if (updateTypes.includes(ctx.updateType)
+        || updateTypes.some((type: UpdateType | MessageSubType) => ctx.updateSubTypes.includes(type as MessageSubType))) {
         Composer.compose(middleware)(ctx, next);
+      } else {
+        next(ctx);
+      }
     };
   }
 
